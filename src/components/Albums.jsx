@@ -3,7 +3,10 @@ import "./tapestyle.css"
 function Albums() {
   return (
     <div>
-      <h1>Albums</h1>
+      <h3>Albums</h3>
+      <div className="albums">
+        
+      </div>
     </div>
   );
 }
