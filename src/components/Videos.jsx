@@ -1,5 +1,4 @@
 import "./tapestyle.css";
-import youtubeIcon from "./assets/youtubeIcon.gif"
 
 function Videos() {
   return (
@@ -34,7 +33,7 @@ function Videos() {
       </iframe>
       <img
           className="youtube-icon" 
-          src={youtubeIcon} 
+          src="https://img.icons8.com/fluency/35/youtube.png"
           alt="YouTube Icon" 
           onClick={() => window.open("https://www.youtube.com/@staxxluciano", "_blank")}
       />
