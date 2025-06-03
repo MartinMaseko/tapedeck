@@ -1,6 +1,5 @@
 body {
   margin: 0;
-  background-color: #F0F0F0;
   font-family: "Lexend", sans-serif;
 }
 
@@ -78,4 +77,70 @@ body {
   border-radius: 5px;
   box-shadow: 0 0 16px rgba(0,0,0,0.20); 
   display: block;
+}
+
+.logo {
+  width: 250px;
+  height: auto;
+  margin: 20px auto;
+}
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  background-color: #FEFEFE;
+}
+
+.login-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 300px;
+}
+
+.login-container input,
+.login-container button {
+  padding: 10px;
+  font-size: 1rem;
+}
+
+.login-container input[type="email"],
+.login-container input[type="password"] {
+  border: 2px solid #282424;
+  border-radius: 10px;
+}
+
+.login-container button {
+  background-color: #197319;
+  color: #FEFEFE;
+  border: 1px solid #ccc;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  padding: 10px;
+  height: 50px;
+}
+
+.login-container button:hover {
+  background-color: #006400;
+  transition: background-color 0.3s;
+}
+
+.google-sign {
+  width: 300px;
+  height: 50px;
+  color: #FEFEFE;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
