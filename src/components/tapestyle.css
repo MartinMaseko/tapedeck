@@ -5,10 +5,30 @@ body {
 
 .slider-wrapper {
   width: 100%;
-  min-height: 100%;
-  padding: 10px;
-  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
   background-color: #F0F0F0;
+}
+
+nav {
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+}
+
+.navlogo {
+  width: 100px;
+  height: auto;
+}
+
+.section-titles {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
 .videos-container,
@@ -17,12 +37,21 @@ body {
   flex-direction: column;
   gap: 20px;
   align-items: center;
-  padding: 10px;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  width: 100%;
+  max-height: 80vh; /* Adjust as needed */
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
+}
+
+.videos-container::-webkit-scrollbar,
+.albums::-webkit-scrollbar {
+  display: none; 
 }
 
 .video-iframe {
-  width: 100%;
-  height: 315px;
+  width: 90%;
   border-radius: 5px;
   box-shadow: 0 0 32px rgba(0,0,0,0.20); 
   border: none;
@@ -37,6 +66,7 @@ body {
   width: 45px;
   height: 45px;
   cursor: pointer;
+  padding-bottom: 10px;
 }
 
 .user-profile-container {
@@ -44,6 +74,7 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100px;
+  background-color: #F0F0F0;
 }
 
 .profile-content {
@@ -70,6 +101,9 @@ body {
   gap: 8px;
 }
 
+.album-container {
+  padding: 10px;
+}
 
 .album-cover {
   width: 100%;                 
@@ -77,6 +111,20 @@ body {
   border-radius: 5px;
   box-shadow: 0 0 16px rgba(0,0,0,0.20); 
   display: block;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+}
+
+.form-inputs {
+  border: none;
+  border-bottom: 1px solid #ccc;
+  border-radius: 5px;
+  height: 50px;
 }
 
 .logo {
@@ -114,7 +162,8 @@ body {
   border-radius: 10px;
 }
 
-.login-container button {
+.login-container button,
+.update-btns {
   background-color: #197319;
   color: #FEFEFE;
   border: 1px solid #ccc;
@@ -124,6 +173,38 @@ body {
   font-weight: bold;
   padding: 10px;
   height: 50px;
+}
+
+.update-btns {
+  margin-top: 20px;
+  width: 150px;
+}
+
+.mp3-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  }
+
+.form-container input[type="file"]::file-selector-button {
+  padding: 10px;
+  border: none;
+  background-color: #ccc;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.form-container input[type="file"]::file-selector-button:hover {
+  padding: 10px;
+  border: none;
+  background-color: #197319;
+  color: #FEFEFE;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+textarea {
+  resize: none;
 }
 
 .login-container button:hover {
@@ -143,4 +224,18 @@ body {
   justify-content: center;
   align-items: center;
   gap: 10px;
+}
+
+.sectiontitle-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
+.section-titles {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
