@@ -158,8 +158,8 @@ nav {
 
 .login-container input[type="email"],
 .login-container input[type="password"] {
-  border: 2px solid #282424;
-  border-radius: 10px;
+  border: none;
+  border-bottom: 1px solid #ccc;
 }
 
 .login-container button,
@@ -210,6 +210,10 @@ textarea {
 .login-container button:hover {
   background-color: #006400;
   transition: background-color 0.3s;
+}
+
+.cassette {
+  width: 100px;
 }
 
 .google-sign {
