@@ -37,18 +37,9 @@ nav {
   flex-direction: column;
   gap: 20px;
   align-items: center;
-  flex: 1 1 auto;
-  overflow-y: auto;
   width: 100%;
-  max-height: 80vh; /* Adjust as needed */
-  scrollbar-width: none; 
-  -ms-overflow-style: none; 
 }
 
-.videos-container::-webkit-scrollbar,
-.albums::-webkit-scrollbar {
-  display: none; 
-}
 
 .video-iframe {
   width: 90%;
@@ -84,6 +75,7 @@ nav {
 }
 
 .profile-pic {
+  margin-top: 25px;
   width: 150px;
   height: 150px;
   border-radius: 100%;
@@ -242,4 +234,17 @@ textarea {
   display: flex;
   flex-direction: column;
   width: 100%;
+}
+
+.profile-nav-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.icons-btns {
+  border: none;
+  background: none;
+  cursor: pointer;
 }
