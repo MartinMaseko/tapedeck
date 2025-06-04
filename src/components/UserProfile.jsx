@@ -28,7 +28,7 @@ function UserProfile({ goToSlide }) {
             <img width="30" height="30" src="https://img.icons8.com/ios/30/006400/music-record.png" alt="Album"/>
           </button>
           <button title="Merch" onClick={() => goToSlide(2)} className="icons-btns">
-            <img width="30" height="30" src="https://img.icons8.com/ios-filled/30/006400/t-shirt--v1.png" alt="Merch"/>
+            <img width="30" height="30" src="https://img.icons8.com/material-outlined/30/006400/t-shirt.png" alt="t-shirt"/>
           </button>
           <button title="Events" onClick={() => goToSlide(3)} className="icons-btns">
             <img width="30" height="30" src="https://img.icons8.com/ios/30/006400/starred-ticket.png" alt="Event"/>

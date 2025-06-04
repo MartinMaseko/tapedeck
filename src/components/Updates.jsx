@@ -51,6 +51,14 @@ function Updates() {
             style={{ display: "block", margin: "10px 0", width: "100%" }}
           />
         ))}
+           <input
+            className="form-inputs"
+            type="text"
+            placeholder="YouTube Channel Link"
+            value={links[3]}
+            onChange={e => handleLinkChange(3, e.target.value)}
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
         <button className="update-btns" type="submit">Update Links</button>
         </div>
         <div className="section-titles">
@@ -142,6 +150,79 @@ function Updates() {
             rows={3}
           />
         </div>
+        <button className="update-btns" type="submit">Update Buy Links</button>
+        <div className="section-titles">
+          <div className="sectiontitle-container">
+            <img 
+              width="30" 
+              height="30" 
+              src="https://img.icons8.com/material-outlined/30/006400/t-shirt.png" 
+              alt="t-shirt"
+            />
+            <h3>Merchandise</h3>
+          </div>
+          {/* Merchandise Inputs */}
+          <input
+            className="form-inputs"
+            type="text"
+            placeholder="Product Label"
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
+          <p>Product Image</p>
+          <input
+            className="form-inputs"
+            type="file"
+            accept="image/*"
+            placeholder="Upload Product Image"
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
+          <textarea
+            className="form-inputs"
+            placeholder="Product Description"
+            rows={3}
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
+        </div>
+        <button className="update-btns" type="submit">Upload Item</button>
+        <div className="section-titles">
+          <div className="sectiontitle-container">
+            <img 
+              width="30" 
+              height="30" 
+              src="https://img.icons8.com/ios/30/006400/starred-ticket.png" 
+              alt="Event"
+            />
+            <h3>Event Tickets</h3>
+          </div>
+          {/* Event Tickets Inputs */}
+          <input
+            className="form-inputs"
+            type="text"
+            placeholder="Event Title"
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
+          <p>Event Poster</p>
+          <input
+            className="form-inputs"
+            type="file"
+            accept="image/*"
+            placeholder="Upload Event Poster"
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
+          <textarea
+            className="form-inputs"
+            placeholder="Event Details"
+            rows={3}
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
+          <input
+            className="form-inputs"
+            type="text"
+            placeholder="Event Buy Links"
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
+        </div>
+        <button className="update-btns" type="submit">Upload Event</button>
       </form>
     </div>
   );
