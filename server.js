@@ -27,6 +27,14 @@ const upload = multer({ storage: storage });
 // Serve uploaded files statically
 app.use("/uploads", express.static(uploadDir));
 
+// Serve React static files
+app.use(express.static(path.join(__dirname, "build")));
+
+// For any other route, serve index.html (for React Router)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
+
 // POST /app/uploads/
 app.post("/app/uploads/", upload.single("file"), (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No file uploaded" });

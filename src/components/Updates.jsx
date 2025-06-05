@@ -75,6 +75,8 @@ function Updates() {
         album: {
           cover: albumCoverUrl,
           songs: uploadedSongs.filter(Boolean),
+          paypalHead: paypalHead || "",
+          paypalEffect: paypalEffect || ""
         }
       }, { merge: true });
       alert("Release uploaded!");
@@ -191,39 +193,38 @@ function Updates() {
                   style={{ display: "block", margin: "5px 0" }}
                 />
                 {songFiles[idx] && <span>{songFiles[idx].name}</span>}
+                <div className="section-titles">
+                  <div className="sectiontitle-container">
+                    <img 
+                      width="30" 
+                      height="30" 
+                      src="https://img.icons8.com/ios/30/006400/paypal.png" 
+                      alt="paypal"
+                    />
+                    <h3>PayPal Buy Button Scripts</h3>
+                  </div>
+                  <p> PayPal Script for Head tag:</p>
+                  <textarea
+                    className="form-inputs"
+                    value={paypalHead}
+                    onChange={e => setPaypalHead(e.target.value)}
+                    placeholder="Paste your &lt;script&gt; for head here"
+                    style={{ display: "block", margin: "10px 0", width: "100%" }}
+                    rows={3}
+                  />
+                <p> PayPal Script for body:</p>
+                  <textarea
+                    className="form-inputs"
+                    value={paypalEffect}
+                    onChange={e => setPaypalEffect(e.target.value)}
+                    placeholder="Paste your PayPal button code for useEffect here"
+                    style={{ display: "block", margin: "10px 0", width: "100%" }}
+                    rows={3}
+                  />
+                </div>
               </div>
             ))}
         <button className="update-btns" type="submit" onClick={handleUploadRelease}>Upload Release</button>
-        <div className="section-titles">
-          <div className="sectiontitle-container">
-            <img 
-              width="30" 
-              height="30" 
-              src="https://img.icons8.com/ios/30/006400/paypal.png" 
-              alt="paypal"
-            />
-            <h3>PayPal Buy Button Scripts</h3>
-          </div>
-          <p> PayPal Script for Head tag:</p>
-          <textarea
-            className="form-inputs"
-            value={paypalHead}
-            onChange={e => setPaypalHead(e.target.value)}
-            placeholder="Paste your &lt;script&gt; for head here"
-            style={{ display: "block", margin: "10px 0", width: "100%" }}
-            rows={3}
-          />
-        <p> PayPal Script for body:</p>
-          <textarea
-            className="form-inputs"
-            value={paypalEffect}
-            onChange={e => setPaypalEffect(e.target.value)}
-            placeholder="Paste your PayPal button code for useEffect here"
-            style={{ display: "block", margin: "10px 0", width: "100%" }}
-            rows={3}
-          />
-        </div>
-        <button className="update-btns" type="submit">Update Buy Links</button>
         <div className="section-titles">
           <div className="sectiontitle-container">
             <img 
