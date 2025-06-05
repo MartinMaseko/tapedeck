@@ -75,6 +75,8 @@ function Updates() {
         album: {
           cover: albumCoverUrl,
           songs: uploadedSongs.filter(Boolean),
+          paypalHead: paypalHead || "",
+          paypalEffect: paypalEffect || ""
         }
       }, { merge: true });
       alert("Release uploaded!");
