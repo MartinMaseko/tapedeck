@@ -1,35 +1,114 @@
 import "./tapestyle.css";
 import NavBar from "./NavBar";
+import { db, auth } from "../firebase";
+import { doc, setDoc } from "firebase/firestore";
 import { useState } from "react";
 import banner from "./assets/tapedeckbanner.webp";
 
 function Updates() {
-  const [links, setLinks] = useState(["", "", ""]);
-  const [mp3File, setMp3File] = useState(null);
-  const [songs, setSongs] = useState([]);
-  const [showMp3Input, setShowMp3Input] = useState(false);
+  const [youtubelinks, setyoutubeLinks] = useState(["", "", ""]);
+  const [youtubeChannelLink, setYoutubeChannelLink] = useState("");
+  const [numSongs, setNumSongs] = useState(1);
+  const [songFiles, setSongFiles] = useState([]); 
+  const [albumCover, setAlbumCover] = useState(null);
   const [paypalHead, setPaypalHead] = useState("");
   const [paypalEffect, setPaypalEffect] = useState("");
 
   const handleLinkChange = (index, value) => {
-    const newLinks = [...links];
+    const newLinks = [...youtubelinks];
     newLinks[index] = value;
-    setLinks(newLinks);
+    setyoutubeLinks(newLinks);
   };
 
-  const handleAddSong = () => {
-    if (mp3File) {
-      setSongs([...songs, mp3File]);
-      setMp3File(null);
-      setShowMp3Input(false);
+  const handleYoutubeChannelChange = (value) => {
+    setYoutubeChannelLink(value);
+  }
+
+
+  const handleUpdateVideos = async (e) => {
+    e.preventDefault();
+    const user = auth.currentUser;
+    if (!user) {
+      alert("You must be logged in.");
+      return;
+    }
+    const safeLinks = youtubelinks.map(link => link || "");
+    try {
+      await setDoc(doc(db, "Artists", user.uid), {
+        youtubelinks: safeLinks,
+        youtubeChannelLink: youtubeChannelLink || ""
+      }, { merge: true }); // merge: true keeps other fields
+      alert("YouTube links updated!");
+    } catch (err) {
+      alert("Error saving links: " + err.message);
     }
   };
+
+  const handleUploadRelease = async (e) => {
+    e.preventDefault();
+    const user = auth.currentUser;
+    if (!user) {
+      alert("You must be logged in.");
+      return;
+    }
+
+    // 1. Upload album cover to Railway (optional)
+    let albumCoverUrl = "";
+    if (albumCover) {
+      albumCoverUrl = await uploadToRailway(albumCover, "cover");
+    }
+
+    // 2. Upload each song to Railway and get URLs
+    const uploadedSongs = await Promise.all(songFiles.map(async (file, idx) => {
+      if (!file) return null;
+      const url = await uploadToRailway(file, `track${idx + 1}`);
+      return {
+        track: idx + 1,
+        name: file.name,
+        url
+      };
+    }));
+
+    // 3. Save to Firestore
+    try {
+      await setDoc(doc(db, "Artists", user.uid), {
+        album: {
+          cover: albumCoverUrl,
+          songs: uploadedSongs.filter(Boolean),
+        }
+      }, { merge: true });
+      alert("Release uploaded!");
+    } catch (err) {
+      alert("Error saving release: " + err.message);
+    }
+  };
+
+  async function uploadToRailway(file, label) {
+    // This assumes your backend at /app/uploads/ accepts multipart/form-data POST
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("label", label);
+
+    const response = await fetch("https://tapedeck-production.up.railway.app/app/uploads/", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error("Upload failed");
+    }
+    const data = await response.json();
+    // Assume your backend returns { url: "https://..." }
+    return data.url;
+  }
 
   return (
     <div>
       <NavBar />
       <img src={banner} alt="TapeDeck Banner" style={{ width: "100%", maxHeight: "350px" }} />
-      <form className="form-container">
+      <form 
+        className="form-container"
+        onSubmit={handleUpdateVideos}>
         <div className="section-titles">
           <div className="sectiontitle-container">
           <img 
@@ -40,26 +119,26 @@ function Updates() {
             />
             <h3>YouTube Links</h3>
           </div>
-          {links.map((link, idx) => (
-            <input
-              className="form-inputs"
-            key={idx}
-            type="text"
-            placeholder={`YouTube Video ${idx + 1}`}
-            value={link}
-            onChange={e => handleLinkChange(idx, e.target.value)}
-            style={{ display: "block", margin: "10px 0", width: "100%" }}
-          />
-        ))}
+          {youtubelinks.map((link, idx) => (
+              <input
+                className="form-inputs"
+                key={idx}
+                type="text"
+                placeholder={`YouTube Video ${idx + 1}`}
+                value={link || ""} 
+                onChange={e => handleLinkChange(idx, e.target.value)}
+                style={{ display: "block", margin: "10px 0", width: "100%" }}
+              />
+            ))}
            <input
             className="form-inputs"
             type="text"
             placeholder="YouTube Channel Link"
-            value={links[3]}
-            onChange={e => handleLinkChange(3, e.target.value)}
+            value={youtubeChannelLink}
+            onChange={e => handleYoutubeChannelChange(e.target.value)}
             style={{ display: "block", margin: "10px 0", width: "100%" }}
           />
-        <button className="update-btns" type="submit">Update Links</button>
+        <button className="update-btns" type="submit">Update Videos</button>
         </div>
         <div className="section-titles">
           <div className="sectiontitle-container">
@@ -77,50 +156,46 @@ function Updates() {
           type="file"
           accept="image/*"
           style={{ display: "block", margin: "10px 0" }}
+          onChange={e => setAlbumCover(e.target.files[0])}
         />
-        <p>Mp3</p>
-        {!showMp3Input ? (
-          <button
-            className="update-btns"
-            type="button"
-            style={{ margin: "10px 0" }}
-            onClick={() => setShowMp3Input(true)}
-          >
-            Add Song
-          </button>
-        ) : (
-          <>
-            <input
-              type="file"
-              accept="audio/mp3,audio/mpeg"
-              style={{ display: "block", margin: "10px 0" }}
-              onChange={e => setMp3File(e.target.files[0])}
-            />
-            <div className="mp3-actions">
-              <button
-                className="update-btns"
-                type="button"
-                onClick={handleAddSong}
-                style={{ margin: "10px 0" }}
-                disabled={!mp3File}
-              >
-                Add
-              </button>
-              <button
-                className="update-btns"
-                type="button"
-                onClick={() => {
-                  setShowMp3Input(false);
-                  setMp3File(null);
-                }}
-                style={{ margin: "10px 0" }}
-              >
-                Cancel
-              </button>
-            </div>
-          </>
-        )}
-        <button className="update-btns" type="submit">Upload Release</button>
+        <p>How many songs?</p>
+          <input
+            className="form-inputs"
+            type="number"
+            min={1}
+            max={20}
+            value={numSongs}
+            onChange={e => {
+              const val = Math.max(1, Math.min(20, Number(e.target.value)));
+              setNumSongs(val);
+              setSongFiles(files => {
+                const newFiles = [...files];
+                newFiles.length = val;
+                return newFiles;
+              });
+            }}
+            style={{ display: "block", margin: "10px 0", width: "100px" }}
+          />
+            {[...Array(numSongs)].map((_, idx) => (
+              <div key={idx} style={{ marginBottom: "10px" }}>
+                <label>Track {idx + 1}:</label>
+                <input
+                  type="file"
+                  accept="audio/mp3,audio/mpeg"
+                  onChange={e => {
+                    const file = e.target.files[0];
+                    setSongFiles(files => {
+                      const newFiles = [...files];
+                      newFiles[idx] = file;
+                      return newFiles;
+                    });
+                  }}
+                  style={{ display: "block", margin: "5px 0" }}
+                />
+                {songFiles[idx] && <span>{songFiles[idx].name}</span>}
+              </div>
+            ))}
+        <button className="update-btns" type="submit" onClick={handleUploadRelease}>Upload Release</button>
         <div className="section-titles">
           <div className="sectiontitle-container">
             <img 
@@ -201,7 +276,7 @@ function Updates() {
             placeholder="Event Title"
             style={{ display: "block", margin: "10px 0", width: "100%" }}
           />
-          <p>Event Poster</p>
+          <p>Event Poster </p>
           <input
             className="form-inputs"
             type="file"

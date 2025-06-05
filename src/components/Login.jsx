@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Add this import
+import { useNavigate } from "react-router-dom"; 
 import { auth } from "../firebase";
 import "./tapestyle.css"; 
 import cassette from "./assets/cassette.webp";
 import tapedeckLogo from "./assets/Logo.png";
+
 import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
@@ -14,13 +15,15 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate(); // Add this line
+  const navigate = useNavigate(); 
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/updates"); // Redirect to Updates
+      const user = auth.currentUser;
+      console.log("User logged in:", user);
+      navigate("/updates"); 
     } catch (err) {
       setError(err.message);
     }
@@ -30,7 +33,9 @@ export default function Login() {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      navigate("/updates"); // Redirect to Updates
+      const user = auth.currentUser;
+      console.log("User logged in:", user);
+      navigate("/updates"); 
     } catch (err) {
       setError(err.message);
     }

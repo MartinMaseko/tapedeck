@@ -173,12 +173,6 @@ nav {
   width: 150px;
 }
 
-.mp3-actions {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  }
-
 .form-container input[type="file"]::file-selector-button {
   padding: 10px;
   border: none;
