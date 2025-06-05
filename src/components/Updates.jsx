@@ -84,7 +84,6 @@ function Updates() {
   };
 
   async function uploadToRailway(file, label) {
-    // This assumes your backend at /app/uploads/ accepts multipart/form-data POST
     const formData = new FormData();
     formData.append("file", file);
     formData.append("label", label);
@@ -98,7 +97,6 @@ function Updates() {
       throw new Error("Upload failed");
     }
     const data = await response.json();
-    // Assume your backend returns { url: "https://..." }
     return data.url;
   }
 
