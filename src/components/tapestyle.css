@@ -37,21 +37,13 @@ nav {
   flex-direction: column;
   gap: 20px;
   align-items: center;
-  flex: 1 1 auto;
-  overflow-y: auto;
   width: 100%;
-  max-height: 80vh; /* Adjust as needed */
-  scrollbar-width: none; 
-  -ms-overflow-style: none; 
 }
 
-.videos-container::-webkit-scrollbar,
-.albums::-webkit-scrollbar {
-  display: none; 
-}
 
 .video-iframe {
   width: 90%;
+  height: 300px;
   border-radius: 5px;
   box-shadow: 0 0 32px rgba(0,0,0,0.20); 
   border: none;
@@ -84,6 +76,7 @@ nav {
 }
 
 .profile-pic {
+  margin-top: 25px;
   width: 150px;
   height: 150px;
   border-radius: 100%;
@@ -158,8 +151,8 @@ nav {
 
 .login-container input[type="email"],
 .login-container input[type="password"] {
-  border: 2px solid #282424;
-  border-radius: 10px;
+  border: none;
+  border-bottom: 1px solid #ccc;
 }
 
 .login-container button,
@@ -179,12 +172,6 @@ nav {
   margin-top: 20px;
   width: 150px;
 }
-
-.mp3-actions {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  }
 
 .form-container input[type="file"]::file-selector-button {
   padding: 10px;
@@ -210,6 +197,10 @@ textarea {
 .login-container button:hover {
   background-color: #006400;
   transition: background-color 0.3s;
+}
+
+.cassette {
+  width: 100px;
 }
 
 .google-sign {
@@ -238,4 +229,17 @@ textarea {
   display: flex;
   flex-direction: column;
   width: 100%;
+}
+
+.profile-nav-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.icons-btns {
+  border: none;
+  background: none;
+  cursor: pointer;
 }

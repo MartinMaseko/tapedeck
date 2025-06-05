@@ -1,7 +1,31 @@
 import "./tapestyle.css"
 import profileimage from "./assets/profileimage.webp";
 
-function UserProfile() {
+function UserProfile({ goToSlide , currentSlide }) {
+
+  const icons = [
+      {
+        title: "Videos",
+        img: "https://img.icons8.com/ios/30/006400/video--v1.png",
+        alt: "videos"
+      },
+      {
+        title: "Albums",
+        img: "https://img.icons8.com/ios/30/006400/music-record.png",
+        alt: "Album"
+      },
+      {
+        title: "Merch",
+        img: "https://img.icons8.com/material-outlined/30/006400/t-shirt.png",
+        alt: "t-shirt"
+      },
+      {
+        title: "Events",
+        img: "https://img.icons8.com/ios/30/006400/starred-ticket.png",
+        alt: "Event"
+      }
+    ];
+
   return (
     <div className="user-profile-container">
       <div className="profile-content">
@@ -12,20 +36,30 @@ function UserProfile() {
         />
         <div className="verified">
           <h3>Staxx Luciano</h3>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            fill="#1da1f2"
-            viewBox="0 0 24 24"
-            style={{ marginLeft: 8, verticalAlign: "middle" }}
-          >
-            <circle cx="12" cy="12" r="10" fill="#1da1f2" />
-            <path
-              d="M10.5 14.5l-2.5-2.5 1.06-1.06L10.5 12.38l4.44-4.44 1.06 1.06z"
-              fill="#fff"
-            />
-          </svg>
+          <img 
+            width="25" 
+            height="25" 
+            src="https://img.icons8.com/material-sharp/25/006400/verified-account.png" 
+            alt="verified-account"
+          />
+        </div>
+        {/* Navigation Icons */}
+        <div className="profile-nav-icons">
+          {icons.map((icon, idx) => (
+            <button
+              key={icon.title}
+              title={icon.title}
+              onClick={() => goToSlide(idx)}
+              className="icons-btns"
+            >
+              <img
+                width={currentSlide === idx ? 35 : 30}
+                height={currentSlide === idx ? 35 : 30}
+                src={icon.img}
+                alt={icon.alt}
+              />
+            </button>
+          ))}
         </div>
       </div>
     </div>
