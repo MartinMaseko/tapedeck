@@ -31,7 +31,7 @@ function Main() {
   return (
     <>
       <div className="main-container">
-        <UserProfile goToSlide={goToSlide} />
+        <UserProfile goToSlide={goToSlide} currentSlide={currentSlide} />
         <div className="slider-wrapper">
           <Slider ref={sliderRef} {...settings} initialSlide={currentSlide}>
             <div className="slide"><Videos /></div>

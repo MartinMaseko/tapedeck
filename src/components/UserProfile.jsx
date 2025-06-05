@@ -1,7 +1,31 @@
 import "./tapestyle.css"
 import profileimage from "./assets/profileimage.webp";
 
-function UserProfile({ goToSlide }) {
+function UserProfile({ goToSlide , currentSlide }) {
+
+  const icons = [
+      {
+        title: "Videos",
+        img: "https://img.icons8.com/ios/30/006400/video--v1.png",
+        alt: "videos"
+      },
+      {
+        title: "Albums",
+        img: "https://img.icons8.com/ios/30/006400/music-record.png",
+        alt: "Album"
+      },
+      {
+        title: "Merch",
+        img: "https://img.icons8.com/material-outlined/30/006400/t-shirt.png",
+        alt: "t-shirt"
+      },
+      {
+        title: "Events",
+        img: "https://img.icons8.com/ios/30/006400/starred-ticket.png",
+        alt: "Event"
+      }
+    ];
+
   return (
     <div className="user-profile-container">
       <div className="profile-content">
@@ -21,18 +45,21 @@ function UserProfile({ goToSlide }) {
         </div>
         {/* Navigation Icons */}
         <div className="profile-nav-icons">
-          <button title="Videos" onClick={() => goToSlide(0)} className="icons-btns">
-            <img width="30" height="30" src="https://img.icons8.com/ios/30/006400/video--v1.png" alt="videos"/>
-          </button>
-          <button title="Albums" onClick={() => goToSlide(1)} className="icons-btns">
-            <img width="30" height="30" src="https://img.icons8.com/ios/30/006400/music-record.png" alt="Album"/>
-          </button>
-          <button title="Merch" onClick={() => goToSlide(2)} className="icons-btns">
-            <img width="30" height="30" src="https://img.icons8.com/material-outlined/30/006400/t-shirt.png" alt="t-shirt"/>
-          </button>
-          <button title="Events" onClick={() => goToSlide(3)} className="icons-btns">
-            <img width="30" height="30" src="https://img.icons8.com/ios/30/006400/starred-ticket.png" alt="Event"/>
-          </button>
+          {icons.map((icon, idx) => (
+            <button
+              key={icon.title}
+              title={icon.title}
+              onClick={() => goToSlide(idx)}
+              className="icons-btns"
+            >
+              <img
+                width={currentSlide === idx ? 35 : 30}
+                height={currentSlide === idx ? 35 : 30}
+                src={icon.img}
+                alt={icon.alt}
+              />
+            </button>
+          ))}
         </div>
       </div>
     </div>
