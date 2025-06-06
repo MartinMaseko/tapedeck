@@ -86,41 +86,32 @@ function Updates() {
   };
 
   async function uploadToRailway(file, label) {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("label", label);
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('label', label);
 
-    // Add logging
-    console.log('Uploading to:', process.env.REACT_APP_API_URL || 'https://tapedeck-production.up.railway.app');
-    console.log('File:', file);
-    console.log('Label:', label);
+      try {
+        const response = await fetch('https://tapedeck-production.up.railway.app/upload', {
+          method: 'POST',
+          body: formData
+        });
 
-    try {
-      const response = await fetch("https://tapedeck-production.up.railway.app/app/uploads/single", {
-        method: "POST",
-        body: formData,
-        // Add these headers
-        headers: {
-          'Accept': 'application/json',
-        },
-      });
+        if (!response.ok) {
+          throw new Error(`Upload failed with status ${response.status}`);
+        }
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error response:', errorText);
-        throw new Error(`Upload failed: ${response.status} ${errorText}`);
+        const data = await response.json();
+        // Show success message
+        console.log(`Successfully uploaded ${label}`);
+        alert(`${label} uploaded successfully!`);
+        
+        // Return the full URL to access the file
+        return `https://tapedeck-production.up.railway.app/app/uploads/${data.filename}`;
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        alert(`Failed to upload ${label}: ${error.message}`);
+        return null;
       }
-
-      const data = await response.json();
-      console.log('Success response:', data);
-      return data.url;
-    } catch (error) {
-      console.error('Upload error:', error);
-      throw error;
-    }
   }
 
   return (
