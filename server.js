@@ -51,6 +51,15 @@ app.post(
   }
 );
 
+app.post("/app/uploads/single", upload.single("file"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded" });
+  }
+  const baseUrl = getBaseUrl();
+  const url = `${baseUrl}/uploads/${req.file.filename}`;
+  res.status(200).json({ url });
+});
+
 // Serve React static files
 app.use(express.static(path.join(__dirname, "build")));
 
