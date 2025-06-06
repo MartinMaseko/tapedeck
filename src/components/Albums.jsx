@@ -4,11 +4,16 @@ import { useEffect } from "react";
 
 function Albums() {
   useEffect(() => {
-    if (window.paypal && window.paypal.HostedButtons) {
-      window.paypal.HostedButtons({
-        hostedButtonId: "HVXKEJ5DGGQVJ",
-      }).render("#paypal-container-HVXKEJ5DGGQVJ");
+    function renderButton() {
+      if (window.paypal && window.paypal.HostedButtons) {
+        window.paypal.HostedButtons({
+          hostedButtonId: "HVXKEJ5DGGQVJ",
+        }).render("#paypal-container-HVXKEJ5DGGQVJ");
+      } else {
+        setTimeout(renderButton, 200); 
+      }
     }
+    renderButton();
   }, []);
 
   return (
