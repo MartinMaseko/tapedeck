@@ -90,16 +90,37 @@ function Updates() {
     formData.append("file", file);
     formData.append("label", label);
 
-    const response = await fetch("https://tapedeck-production.up.railway.app/app/uploads/single", {
-      method: "POST",
-      body: formData,
-    });
+    // Add logging
+    console.log('Uploading to:', process.env.REACT_APP_API_URL || 'https://tapedeck-production.up.railway.app');
+    console.log('File:', file);
+    console.log('Label:', label);
 
-    if (!response.ok) {
-      throw new Error("Upload failed");
+    try {
+      const response = await fetch("https://tapedeck-production.up.railway.app/app/uploads/single", {
+        method: "POST",
+        body: formData,
+        // Add these headers
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        throw new Error(`Upload failed: ${response.status} ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log('Success response:', data);
+      return data.url;
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw error;
     }
-    const data = await response.json();
-    return data.url;
   }
 
   return (

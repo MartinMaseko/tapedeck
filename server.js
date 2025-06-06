@@ -33,6 +33,21 @@ app.use("/uploads", express.static(uploadDir));
 // Helper for base URL
 const getBaseUrl = () => process.env.APP_URL || `http://localhost:${PORT}`;
 
+// Middleware to log requests
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`, {
+    headers: req.headers,
+    query: req.query,
+    body: req.body
+  });
+  next();
+});
+
+// Test endpoint
+app.get("/test", (req, res) => {
+  res.json({ message: "Server is running" });
+});
+
 // Upload endpoint for images and mp3s
 app.post(
   "/app/uploads/",
@@ -52,11 +67,20 @@ app.post(
 );
 
 app.post("/app/uploads/single", upload.single("file"), (req, res) => {
+  console.log('Upload attempt received');
+  console.log('Files:', req.file);
+  console.log('Body:', req.body);
+  console.log('Upload dir:', uploadDir);
+
   if (!req.file) {
+    console.log('No file received');
     return res.status(400).json({ error: "No file uploaded" });
   }
+
   const baseUrl = getBaseUrl();
   const url = `${baseUrl}/uploads/${req.file.filename}`;
+  console.log('Generated URL:', url);
+  
   res.status(200).json({ url });
 });
 
