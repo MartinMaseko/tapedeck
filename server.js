@@ -1,102 +1,51 @@
-const express = require("express");
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
-const cors = require("cors");
-
-console.log('Starting server with configuration:');
-console.log('APP_URL:', process.env.APP_URL);
-console.log('CORS_ORIGIN:', process.env.CORS_ORIGIN);
-console.log('PORT:', process.env.PORT);
-console.log('Upload Directory:', process.env.RAILWAY_VOLUME_MOUNT_PATH || 'local uploads/');
-
+const express = require('express');
+const multer = require('multer');
+const cors = require('cors');
+const path = require('path');
 const app = express();
-const PORT = process.env.PORT || 3001;
 
-// Dynamic CORS setup (add your frontend URLs as needed)
-const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(',')
-  : ['http://localhost:3000', 'https://tapedeck.netlify.app/'];
+// Configure CORS
+const corsOrigins = process.env.CORS_ORIGIN.split(',');
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin || corsOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
 
-app.use(cors({ origin: allowedOrigins }));
-
-// Use Railway volume if available, else local uploads
-const uploadDir = process.env.RAILWAY_VOLUME_MOUNT_PATH || path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Multer storage config
+// Configure multer for file uploads
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
-});
-const upload = multer({ storage });
-
-// Serve uploaded files statically
-app.use("/uploads", express.static(uploadDir));
-
-// Helper for base URL
-const getBaseUrl = () => process.env.APP_URL || `http://localhost:${PORT}`;
-
-// Middleware to log requests
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path}`, {
-    headers: req.headers,
-    query: req.query,
-    body: req.body
-  });
-  next();
-});
-
-// Test endpoint
-app.get("/test", (req, res) => {
-  res.json({ message: "Server is running" });
-});
-
-// Upload endpoint for images and mp3s
-app.post(
-  "/app/uploads/",
-  upload.fields([
-    { name: "images", maxCount: 10 },
-    { name: "mp3s", maxCount: 20 }
-  ]),
-  (req, res) => {
-    const files = req.files;
-    const baseUrl = getBaseUrl();
-    const response = {
-      images: files.images ? files.images.map((file) => `${baseUrl}/uploads/${file.filename}`) : [],
-      mp3s: files.mp3s ? files.mp3s.map((file) => `${baseUrl}/uploads/${file.filename}`) : [],
-    };
-    res.status(200).json(response);
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    // Create unique filename using timestamp and original name
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   }
-);
+});
 
+const upload = multer({ storage: storage });
 
-app.post("/app/uploads/single", upload.single("file"), (req, res) => {
-  console.log('Upload attempt received');
-  console.log('Files:', req.file);
-  console.log('Body:', req.body);
-  console.log('Upload dir:', uploadDir);
+// Serve uploaded files
+app.use('/app/uploads', express.static('uploads'));
 
+// Handle file uploads
+app.post('/upload', upload.single('file'), (req, res) => {
   if (!req.file) {
-    console.log('No file received');
-    return res.status(400).json({ error: "No file uploaded" });
+    return res.status(400).json({ error: 'No file uploaded' });
   }
-
-  const baseUrl = getBaseUrl();
-  const url = `${baseUrl}/uploads/${req.file.filename}`;
-  console.log('Generated URL:', url);
   
-  res.status(200).json({ url });
+  res.json({
+    filename: req.file.filename,
+    path: `/app/uploads/${req.file.filename}`
+  });
 });
 
-
-app.use(express.static(path.join(__dirname, "build")));
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "build", "index.html"));
-});
-
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`Server is running on ${getBaseUrl()}`);
+  console.log(`Server running on port ${PORT}`);
 });
