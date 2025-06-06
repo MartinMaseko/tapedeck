@@ -4,6 +4,12 @@ const path = require("path");
 const fs = require("fs");
 const cors = require("cors");
 
+console.log('Starting server with configuration:');
+console.log('APP_URL:', process.env.APP_URL);
+console.log('CORS_ORIGIN:', process.env.CORS_ORIGIN);
+console.log('PORT:', process.env.PORT);
+console.log('Upload Directory:', process.env.RAILWAY_VOLUME_MOUNT_PATH || 'local uploads/');
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
