@@ -66,6 +66,7 @@ app.post(
   }
 );
 
+
 app.post("/app/uploads/single", upload.single("file"), (req, res) => {
   console.log('Upload attempt received');
   console.log('Files:', req.file);
@@ -84,10 +85,8 @@ app.post("/app/uploads/single", upload.single("file"), (req, res) => {
   res.status(200).json({ url });
 });
 
-// Serve React static files
-app.use(express.static(path.join(__dirname, "build")));
 
-// For any other route, serve index.html (for React Router)
+app.use(express.static(path.join(__dirname, "build")));
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
