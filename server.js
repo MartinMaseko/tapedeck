@@ -5,7 +5,7 @@ const path = require('path');
 const app = express();
 
 // Configure CORS
-const corsOrigins = process.env.CORS_ORIGIN.split(',');
+const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000,https://tapedeck.netlify.app').split(',');
 app.use(cors({
   origin: function(origin, callback) {
     if (!origin || corsOrigins.indexOf(origin) !== -1) {
@@ -46,6 +46,6 @@ app.post('/upload', upload.single('file'), (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
