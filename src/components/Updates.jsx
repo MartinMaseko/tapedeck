@@ -90,7 +90,7 @@ function Updates() {
     formData.append("file", file);
     formData.append("label", label);
 
-    const response = await fetch("https://tapedeck-production.up.railway.app/app/uploads/", {
+    const response = await fetch("https://tapedeck-production.up.railway.app/app/uploads/single", {
       method: "POST",
       body: formData,
     });
