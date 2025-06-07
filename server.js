@@ -45,6 +45,10 @@ app.post('/upload', upload.single('file'), (req, res) => {
   });
 });
 
+app.get('/apphealth', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
