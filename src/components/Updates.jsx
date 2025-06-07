@@ -14,6 +14,15 @@ function Updates() {
   const [paypalHead, setPaypalHead] = useState("");
   const [paypalEffect, setPaypalEffect] = useState("");
 
+  const [products, setProducts] = useState([
+    { label: "", image: null, description: "" }
+  ]);
+
+  const [eventTitle, setEventTitle] = useState("");
+  const [eventPoster, setEventPoster] = useState(null);
+  const [eventDetails, setEventDetails] = useState("");
+  const [eventBuyLinks, setEventBuyLinks] = useState("");
+
   const handleLinkChange = (index, value) => {
     const newLinks = [...youtubelinks];
     newLinks[index] = value;
@@ -82,6 +91,68 @@ function Updates() {
       alert("Release uploaded!");
     } catch (err) {
       alert("Error saving release: " + err.message);
+    }
+  };
+  
+  const handleUploadMerch = async (e) => {
+    e.preventDefault();
+    const user = auth.currentUser;
+    if (!user) {
+      alert("You must be logged in.");
+      return;
+    }
+
+    // Upload all images and build product objects
+    const uploadedProducts = await Promise.all(products.map(async (product) => {
+      let imageUrl = "";
+      if (product.image) {
+        imageUrl = await uploadToRailway(product.image, product.label, "images");
+      }
+      return {
+        label: product.label,
+        description: product.description,
+        image: imageUrl
+      };
+    }));
+
+    try {
+      await setDoc(doc(db, "Artists", user.uid), {
+        merch: uploadedProducts
+      }, { merge: true });
+      alert("Merchandise uploaded!");
+      setProducts([{ label: "", image: null, description: "" }]);
+    } catch (err) {
+      alert("Error saving merch: " + err.message);
+    }
+  };
+
+  const handleUploadEvent = async (e) => {
+    e.preventDefault();
+    const user = auth.currentUser;
+    if (!user) {
+      alert("You must be logged in.");
+      return;
+    }
+    let posterUrl = "";
+    if (eventPoster) {
+      posterUrl = await uploadToRailway(eventPoster, "eventPoster", "images");
+    }
+    try {
+      await setDoc(doc(db, "Artists", user.uid), {
+        event: {
+          title: eventTitle,
+          poster: posterUrl,
+          details: eventDetails,
+          buyLinks: eventBuyLinks
+        }
+      }, { merge: true });
+      alert("Event uploaded!");
+      setEventTitle("");
+      setEventPoster(null);
+      setEventDetails("");
+      setEventBuyLinks("");
+    } catch (err) {
+      alert("Error saving event: " + err.message);
     }
   };
 
@@ -250,28 +321,54 @@ function Updates() {
             <h3>Merchandise</h3>
           </div>
           {/* Merchandise Inputs */}
-          <input
-            className="form-inputs"
-            type="text"
-            placeholder="Product Label"
-            style={{ display: "block", margin: "10px 0", width: "100%" }}
-          />
-          <p>Product Image</p>
-          <input
-            className="form-inputs"
-            type="file"
-            accept="image/*"
-            placeholder="Upload Product Image"
-            style={{ display: "block", margin: "10px 0", width: "100%" }}
-          />
-          <textarea
-            className="form-inputs"
-            placeholder="Product Description"
-            rows={3}
-            style={{ display: "block", margin: "10px 0", width: "100%" }}
-          />
+          {products.map((product, idx) => (
+            <div key={idx}>
+              <input
+                className="form-inputs"
+                type="text"
+                placeholder="Product Label"
+                value={product.label}
+                onChange={e => {
+                  const newProducts = [...products];
+                  newProducts[idx].label = e.target.value;
+                  setProducts(newProducts);
+                }}
+                style={{width: "100%" }}
+              />
+              <p>Product Image</p>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={e => {
+                  const newProducts = [...products];
+                  newProducts[idx].image = e.target.files[0];
+                  setProducts(newProducts);
+                }}
+                style={{ width: "100%", marginTop: "10px" }}
+              />
+              <textarea
+                className="form-inputs"
+                placeholder="Product Description"
+                value={product.description}
+                onChange={e => {
+                  const newProducts = [...products];
+                  newProducts[idx].description = e.target.value;
+                  setProducts(newProducts);
+                }}
+                rows={3}
+                style={{width: "100%", marginTop: "30px", height: "100px" }}
+              />
+            </div>
+          ))}
+          <button
+            className="update-btns"
+            type="button"
+            onClick={() => setProducts([...products, { label: "", image: null, description: "" }])}
+          >
+            Add Another Product
+          </button>
+          <button className="update-btns" type="button" onClick={handleUploadMerch}>Upload Item</button>
         </div>
-        <button className="update-btns" type="submit">Upload Item</button>
         <div className="section-titles">
           <div className="sectiontitle-container">
             <img 
@@ -287,6 +384,8 @@ function Updates() {
             className="form-inputs"
             type="text"
             placeholder="Event Title"
+            value={eventTitle}
+            onChange={e => setEventTitle(e.target.value)}
             style={{ display: "block", margin: "10px 0", width: "100%" }}
           />
           <p>Event Poster </p>
@@ -294,12 +393,14 @@ function Updates() {
             className="form-inputs"
             type="file"
             accept="image/*"
-            placeholder="Upload Event Poster"
+            onChange={e => setEventPoster(e.target.files[0])}
             style={{ display: "block", margin: "10px 0", width: "100%" }}
           />
           <textarea
             className="form-inputs"
             placeholder="Event Details"
+            value={eventDetails}
+            onChange={e => setEventDetails(e.target.value)}
             rows={3}
             style={{ display: "block", margin: "10px 0", width: "100%" }}
           />
@@ -307,10 +408,12 @@ function Updates() {
             className="form-inputs"
             type="text"
             placeholder="Event Buy Links"
+            value={eventBuyLinks}
+            onChange={e => setEventBuyLinks(e.target.value)}
             style={{ display: "block", margin: "10px 0", width: "100%" }}
           />
         </div>
-        <button className="update-btns" type="submit">Upload Event</button>
+        <button className="update-btns" type="button" onClick={handleUploadEvent}>Upload Event</button>
       </form>
     </div>
   );

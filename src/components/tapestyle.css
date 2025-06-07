@@ -173,6 +173,11 @@ nav {
   width: 150px;
 }
 
+.update-btns:hover {
+  background-color: #006400;
+  transition: background-color 0.3s;
+}
+
 .form-container input[type="file"]::file-selector-button {
   padding: 10px;
   border: none;

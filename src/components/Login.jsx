@@ -21,7 +21,6 @@ export default function Login() {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      const user = auth.currentUser;
       navigate("/updates"); 
     } catch (err) {
       setError(err.message);
@@ -32,7 +31,6 @@ export default function Login() {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      const user = auth.currentUser;
       navigate("/updates"); 
     } catch (err) {
       setError(err.message);
