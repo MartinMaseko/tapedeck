@@ -1,55 +1,58 @@
-const express = require('express');
-const multer = require('multer');
-const cors = require('cors');
-const path = require('path');
-const app = express();
+const express = require("express");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+const cors = require("cors");
 
-// Configure CORS
-const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000,https://tapedeck.netlify.app').split(',');
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Dynamic CORS setup
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',')
+  : ['http://localhost:3000', 'https://tapedeck.netlify.app/'];
+
 app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin || corsOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
+  origin: allowedOrigins,
 }));
 
-// Configure multer for file uploads
+// Ensure uploads directory exists
+const uploadDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+// Multer storage config
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    // Create unique filename using timestamp and original name
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
+});
+const upload = multer({ storage });
+
+app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+const getBaseUrl = () => process.env.APP_URL || `http://localhost:${PORT}`;
+
+// Accept images (album cover, etc) and songs (mp3s)
+app.post("/upload", upload.fields([
+  { name: "images", maxCount: 10 },
+  { name: "songs", maxCount: 20 }
+]), (req, res) => {
+  const files = req.files;
+  const baseUrl = getBaseUrl();
+  const response = {
+    images: files.images ? files.images.map((file) => `${baseUrl}/uploads/${file.filename}`) : [],
+    songs: files.songs ? files.songs.map((file) => `${baseUrl}/uploads/${file.filename}`) : [],
+  };
+  res.status(200).json(response);
 });
 
-const upload = multer({ storage: storage });
-
-// Serve uploaded files
-app.use('/app/uploads', express.static('uploads'));
-
-// Handle file uploads
-app.post('/upload', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-  
-  res.json({
-    filename: req.file.filename,
-    path: `/app/uploads/${req.file.filename}`
-  });
-});
-
+// Optional: health check endpoint
 app.get('/apphealth', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-const PORT = process.env.PORT || 8080;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server is running on ${getBaseUrl()}`);
 });
