@@ -55,13 +55,13 @@ function Updates() {
     // 1. Upload album cover to Railway (optional)
     let albumCoverUrl = "";
     if (albumCover) {
-      albumCoverUrl = await uploadToRailway(albumCover, "cover");
+      albumCoverUrl = await uploadToRailway(albumCover, "cover", "images");
     }
 
     // 2. Upload each song to Railway and get URLs
     const uploadedSongs = await Promise.all(songFiles.map(async (file, idx) => {
       if (!file) return null;
-      const url = await uploadToRailway(file, `track${idx + 1}`);
+      const url = await uploadToRailway(file, `track${idx + 1}`, "songs");
       return {
         track: idx + 1,
         name: file.name,
@@ -85,32 +85,30 @@ function Updates() {
     }
   };
 
-  async function uploadToRailway(file, label) {
+  async function uploadToRailway(file, label, fieldName = "images") {
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('label', label);
+    formData.append(fieldName, file);
 
     try {
       const response = await fetch('https://tapedeck-production.up.railway.app/upload', {
         method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-        },
-        mode: 'cors', 
-        credentials: 'same-origin',
         body: formData
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Upload failed with status ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(errorText);
       }
 
       const data = await response.json();
-      console.log(`Successfully uploaded ${label}`);
-      alert(`${label} uploaded successfully!`);
-      
-      return `https://tapedeck-production.up.railway.app/app/uploads/${data.filename}`;
+      // Return the correct URL from the response
+      if (fieldName === "images" && data.images && data.images.length > 0) {
+        return data.images[0];
+      }
+      if (fieldName === "songs" && data.songs && data.songs.length > 0) {
+        return data.songs[0];
+      }
+      return null;
     } catch (error) {
       console.error('Error uploading file:', error);
       alert(`Failed to upload ${label}: ${error.message}`);
