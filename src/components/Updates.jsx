@@ -86,32 +86,42 @@ function Updates() {
   };
 
   async function uploadToRailway(file, label) {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('label', label);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('label', label);
 
-      try {
-        const response = await fetch('https://tapedeck-production.up.railway.app/upload', {
-          method: 'POST',
-          body: formData
-        });
-
-        if (!response.ok) {
-          throw new Error(`Upload failed with status ${response.status}`);
-        }
-
-        const data = await response.json();
-        // Show success message
-        console.log(`Successfully uploaded ${label}`);
-        alert(`${label} uploaded successfully!`);
-        
-        // Return the full URL to access the file
-        return `https://tapedeck-production.up.railway.app/app/uploads/${data.filename}`;
-      } catch (error) {
-        console.error('Error uploading file:', error);
-        alert(`Failed to upload ${label}: ${error.message}`);
-        return null;
+    try {
+      // First check if server is accessible
+      const healthCheck = await fetch('https://tapedeck-production.up.railway.app/health');
+      if (!healthCheck.ok) {
+        throw new Error('Server is not responding');
       }
+
+      const response = await fetch('https://tapedeck-production.up.railway.app/upload', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+        },
+        mode: 'cors', 
+        credentials: 'same-origin',
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Upload failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log(`Successfully uploaded ${label}`);
+      alert(`${label} uploaded successfully!`);
+      
+      return `https://tapedeck-production.up.railway.app/app/uploads/${data.filename}`;
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert(`Failed to upload ${label}: ${error.message}`);
+      return null;
+    }
   }
 
   return (
