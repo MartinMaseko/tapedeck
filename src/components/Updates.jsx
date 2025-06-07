@@ -91,12 +91,6 @@ function Updates() {
     formData.append('label', label);
 
     try {
-      // First check if server is accessible
-      const healthCheck = await fetch('https://tapedeck-production.up.railway.app/health');
-      if (!healthCheck.ok) {
-        throw new Error('Server is not responding');
-      }
-
       const response = await fetch('https://tapedeck-production.up.railway.app/upload', {
         method: 'POST',
         headers: {
