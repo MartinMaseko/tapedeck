@@ -33,7 +33,7 @@ function Dashboard() {
       {users.length === 0 && <p>No user uploads found.</p>}
       {users.map(user => (
         <div key={user.id} className="user-section" style={{border: "1px solid #ccc", margin: "20px 0", padding: "20px"}}>
-          <h2>User: {user.id}</h2>
+          <h2>User: {user.username}</h2>
           <h3>YouTube Links</h3>
           <ul>
             {(user.youtubelinks || []).map((link, idx) => (

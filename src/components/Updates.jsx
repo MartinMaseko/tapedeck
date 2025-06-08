@@ -1,8 +1,8 @@
 import "./tapestyle.css";
 import NavBar from "./NavBar";
 import { db, auth } from "../firebase";
-import { doc, setDoc, updateDoc, arrayUnion } from "firebase/firestore";
-import { useState } from "react";
+import { doc, setDoc, updateDoc, arrayUnion, query, where, getDocs, collection, getDoc } from "firebase/firestore";
+import { useState, useEffect } from "react";
 import banner from "./assets/tapedeckbanner.webp";
 
 function Updates() {
@@ -14,6 +14,10 @@ function Updates() {
   const [paypalHead, setPaypalHead] = useState("");
   const [paypalEffect, setPaypalEffect] = useState("");
   const [paypalButton, setPaypalButton] = useState("");
+  const [username, setUsername] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [usernameLoading, setUsernameLoading] = useState(false);
+  const [usernameCreated, setUsernameCreated] = useState(false);
 
   const [products, setProducts] = useState([
     { label: "", image: null, description: "", merchPaypalButton: "" }
@@ -30,6 +34,68 @@ function Updates() {
     youtubeMusic: "",
     tidal: ""
   });
+
+  useEffect(() => {
+    fetchUsername();
+  }, []);
+
+  const fetchUsername = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      const userDocRef = doc(db, "Artists", user.uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        if (data.username) {
+          setUsername(data.username);
+          setUsernameCreated(true);
+        }
+      }
+    }
+  };
+
+  // Username uniqueness check
+  const checkUsernameUnique = async (username) => {
+    const q = query(collection(db, "Artists"), where("username", "==", username));
+    const snapshot = await getDocs(q);
+    return snapshot.empty;
+  };
+
+  // Handle username creation
+  const handleCreateUsername = async () => {
+    setUsernameError("");
+    setUsernameLoading(true);
+    const user = auth.currentUser;
+    if (!user) {
+      setUsernameError("You must be logged in.");
+      setUsernameLoading(false);
+      return;
+    }
+    if (!username) {
+      setUsernameError("Username is required.");
+      setUsernameLoading(false);
+      return;
+    }
+    // Only check uniqueness if admin
+    let isUnique = true;
+    const token = await user.getIdTokenResult();
+    if (token.claims.admin) {
+      isUnique = await checkUsernameUnique(username);
+      if (!isUnique) {
+        setUsernameError("Username already exists. Please choose another.");
+        setUsernameLoading(false);
+        return;
+      }
+    }
+    try {
+      await setDoc(doc(db, "Artists", user.uid), { username }, { merge: true });
+      setUsernameCreated(true);
+      setUsernameError("");
+    } catch (err) {
+      setUsernameError("Error saving username: " + err.message);
+    }
+    setUsernameLoading(false);
+  };
 
   const handleLinkChange = (index, value) => {
     const newLinks = [...youtubelinks];
@@ -57,6 +123,7 @@ function Updates() {
     }
     try {
       await setDoc(doc(db, "Artists", user.uid), {
+        username,
         streamingLinks
       }, { merge: true });
       alert("Streaming links updated!");
@@ -75,6 +142,7 @@ function Updates() {
     const safeLinks = youtubelinks.map(link => link || "");
     try {
       await setDoc(doc(db, "Artists", user.uid), {
+        username,
         youtubelinks: safeLinks,
         youtubeChannelLink: youtubeChannelLink || ""
       }, { merge: true }); // merge: true keeps other fields
@@ -114,6 +182,7 @@ function Updates() {
       const albumRef = doc(db, "Artists", user.uid);
       // Update album cover and PayPal fields (object merge)
       await setDoc(albumRef, {
+        username,
         album: {
           cover: albumCoverUrl,
           paypalHead: paypalHead || "",
@@ -160,6 +229,7 @@ function Updates() {
       const merchRef = doc(db, "Artists", user.uid);
       for (const product of uploadedProducts) {
         await updateDoc(merchRef, {
+          username,
           merch: arrayUnion(product)
         });
       }
@@ -184,6 +254,7 @@ function Updates() {
     try {
       const eventRef = doc(db, "Artists", user.uid);
       await updateDoc(eventRef, {
+        username,
         events: arrayUnion({
           title: eventTitle,
           poster: posterUrl,
@@ -236,6 +307,25 @@ function Updates() {
     <div>
       <NavBar />
       <img src={banner} alt="TapeDeck Banner" style={{ width: "100%", maxHeight: "350px" }} />
+      <input
+          className="form-inputs"
+          type="text"
+          placeholder="Choose a unique username"
+          value={username}
+          onChange={e => setUsername(e.target.value.trim())}
+          style={{ display: "inline-block", margin: "10px 10px 10px 0", width: "300px" }}
+          disabled={usernameCreated}
+        />
+        <button
+          className="update-btns"
+          type="button"
+          onClick={handleCreateUsername}
+          disabled={usernameCreated || usernameLoading}
+        >
+          {usernameCreated ? "Username Created" : usernameLoading ? "Checking..." : "Create Username"}
+        </button>
+        {usernameError && <p style={{color: "red"}}>{usernameError}</p>}
+        {usernameCreated && <p style={{color: "green"}}>@{username}</p>}
       <form 
         className="form-container"
         onSubmit={handleUpdateVideos}>
