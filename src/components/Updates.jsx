@@ -1,7 +1,7 @@
 import "./tapestyle.css";
 import NavBar from "./NavBar";
 import { db, auth } from "../firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc, arrayUnion } from "firebase/firestore";
 import { useState } from "react";
 import banner from "./assets/tapedeckbanner.webp";
 
@@ -13,15 +13,23 @@ function Updates() {
   const [albumCover, setAlbumCover] = useState(null);
   const [paypalHead, setPaypalHead] = useState("");
   const [paypalEffect, setPaypalEffect] = useState("");
+  const [paypalButton, setPaypalButton] = useState("");
 
   const [products, setProducts] = useState([
-    { label: "", image: null, description: "" }
+    { label: "", image: null, description: "", merchPaypalButton: "" }
   ]);
 
   const [eventTitle, setEventTitle] = useState("");
   const [eventPoster, setEventPoster] = useState(null);
   const [eventDetails, setEventDetails] = useState("");
   const [eventBuyLinks, setEventBuyLinks] = useState("");
+
+  const [streamingLinks, setStreamingLinks] = useState({
+    spotify: "",
+    apple: "",
+    youtubeMusic: "",
+    tidal: ""
+  });
 
   const handleLinkChange = (index, value) => {
     const newLinks = [...youtubelinks];
@@ -33,6 +41,29 @@ function Updates() {
     setYoutubeChannelLink(value);
   }
 
+  const handleStreamingLinkChange = (service, value) => {
+    setStreamingLinks(prev => ({
+      ...prev,
+      [service]: value
+    }));
+  };
+
+  const handleUpdateStreaming = async (e) => {
+    e.preventDefault();
+    const user = auth.currentUser;
+    if (!user) {
+      alert("You must be logged in.");
+      return;
+    }
+    try {
+      await setDoc(doc(db, "Artists", user.uid), {
+        streamingLinks
+      }, { merge: true });
+      alert("Streaming links updated!");
+    } catch (err) {
+      alert("Error saving streaming links: " + err.message);
+    }
+  };
 
   const handleUpdateVideos = async (e) => {
     e.preventDefault();
@@ -78,16 +109,26 @@ function Updates() {
       };
     }));
 
-    // 3. Save to Firestore
+    // 3. Append songs to Firestore album.songs array
     try {
-      await setDoc(doc(db, "Artists", user.uid), {
+      const albumRef = doc(db, "Artists", user.uid);
+      // Update album cover and PayPal fields (object merge)
+      await setDoc(albumRef, {
         album: {
           cover: albumCoverUrl,
-          songs: uploadedSongs.filter(Boolean),
           paypalHead: paypalHead || "",
-          paypalEffect: paypalEffect || ""
+          paypalEffect: paypalEffect || "",
+          paypalButton: paypalButton || ""
         }
       }, { merge: true });
+
+      // Append each song to the album.songs array
+      for (const song of uploadedSongs.filter(Boolean)) {
+        await updateDoc(albumRef, {
+          "album.songs": arrayUnion(song)
+        });
+      }
+
       alert("Release uploaded!");
     } catch (err) {
       alert("Error saving release: " + err.message);
@@ -116,9 +157,12 @@ function Updates() {
     }));
 
     try {
-      await setDoc(doc(db, "Artists", user.uid), {
-        merch: uploadedProducts
-      }, { merge: true });
+      const merchRef = doc(db, "Artists", user.uid);
+      for (const product of uploadedProducts) {
+        await updateDoc(merchRef, {
+          merch: arrayUnion(product)
+        });
+      }
       alert("Merchandise uploaded!");
       setProducts([{ label: "", image: null, description: "" }]);
     } catch (err) {
@@ -138,14 +182,15 @@ function Updates() {
       posterUrl = await uploadToRailway(eventPoster, "eventPoster", "images");
     }
     try {
-      await setDoc(doc(db, "Artists", user.uid), {
-        event: {
+      const eventRef = doc(db, "Artists", user.uid);
+      await updateDoc(eventRef, {
+        events: arrayUnion({
           title: eventTitle,
           poster: posterUrl,
           details: eventDetails,
           buyLinks: eventBuyLinks
-        }
-      }, { merge: true });
+        })
+      });
       alert("Event uploaded!");
       setEventTitle("");
       setEventPoster(null);
@@ -223,7 +268,51 @@ function Updates() {
             onChange={e => handleYoutubeChannelChange(e.target.value)}
             style={{ display: "block", margin: "10px 0", width: "100%" }}
           />
-        <button className="update-btns" type="submit">Update Videos</button>
+          <button className="update-btns" type="submit">Update Videos</button>
+          <div className="section-titles">
+            <div className="sectiontitle-container">
+              <img 
+                width="30" 
+                height="30" 
+                src="https://img.icons8.com/ios/30/006400/itunes.png" 
+                alt="streaming"
+              />
+              <h3>Streaming Links</h3>
+            </div>
+            <input
+              className="form-inputs"
+              type="text"
+              placeholder="Spotify Link"
+              value={streamingLinks.spotify}
+              onChange={e => handleStreamingLinkChange("spotify", e.target.value)}
+              style={{ display: "block", margin: "10px 0", width: "100%" }}
+            />
+            <input
+              className="form-inputs"
+              type="text"
+              placeholder="Apple Music Link"
+              value={streamingLinks.apple}
+              onChange={e => handleStreamingLinkChange("apple", e.target.value)}
+              style={{ display: "block", margin: "10px 0", width: "100%" }}
+            />
+            <input
+              className="form-inputs"
+              type="text"
+              placeholder="YouTube Music Link"
+              value={streamingLinks.youtubeMusic}
+              onChange={e => handleStreamingLinkChange("youtubeMusic", e.target.value)}
+              style={{ display: "block", margin: "10px 0", width: "100%" }}
+            />
+            <input
+              className="form-inputs"
+              type="text"
+              placeholder="Tidal Link"
+              value={streamingLinks.tidal}
+              onChange={e => handleStreamingLinkChange("tidal", e.target.value)}
+              style={{ display: "block", margin: "10px 0", width: "100%" }}
+            />
+          </div>
+        <button className="update-btns" type="button" onClick={handleUpdateStreaming}>Update Streaming</button>
         </div>
         <div className="section-titles">
           <div className="sectiontitle-container">
@@ -247,15 +336,21 @@ function Updates() {
           <input
             className="form-inputs"
             type="number"
-            min={1}
-            max={20}
-            value={numSongs}
+            value={numSongs === "" ? "" : numSongs}
             onChange={e => {
-              const val = Math.max(1, Math.min(20, Number(e.target.value)));
-              setNumSongs(val);
+              const val = e.target.value;
+              // Allow empty input for editing
+              if (val === "") {
+                setNumSongs("");
+                setSongFiles([]);
+                return;
+              }
+              // Only update if valid number
+              const num = Math.max(1, Math.min(25, Number(val)));
+              setNumSongs(num);
               setSongFiles(files => {
                 const newFiles = [...files];
-                newFiles.length = val;
+                newFiles.length = num;
                 return newFiles;
               });
             }}
@@ -278,7 +373,9 @@ function Updates() {
                   style={{ display: "block", margin: "5px 0" }}
                 />
                 {songFiles[idx] && <span>{songFiles[idx].name}</span>}
-                <div className="section-titles">
+              </div>
+            ))}
+            <div className="section-titles">
                   <div className="sectiontitle-container">
                     <img 
                       width="30" 
@@ -306,9 +403,16 @@ function Updates() {
                     style={{ display: "block", margin: "10px 0", width: "100%" }}
                     rows={3}
                   />
+                  <p> PayPal Button Scripts:</p>
+                  <textarea
+                    className="form-inputs"
+                    value={paypalButton}
+                    onChange={e => setPaypalButton(e.target.value)}
+                    placeholder="Paste your PayPal button code here"
+                    style={{ display: "block", margin: "10px 0", width: "100%" }}
+                    rows={3}
+                  />
                 </div>
-              </div>
-            ))}
         <button className="update-btns" type="submit" onClick={handleUploadRelease}>Upload Release</button>
         <div className="section-titles">
           <div className="sectiontitle-container">
@@ -358,12 +462,35 @@ function Updates() {
                 rows={3}
                 style={{width: "100%", marginTop: "30px", height: "100px" }}
               />
+              <p>PayPal Button Script:</p>
+              <textarea
+                className="form-inputs"
+                placeholder="Paste your PayPal button code here"
+                value={product.merchPaypalButton}
+                onChange={e => {
+                  const newProducts = [...products];
+                  newProducts[idx].merchPaypalButton = e.target.value;
+                  setProducts(newProducts);
+                }}
+                rows={2}
+                style={{width: "100%", marginTop: "10px"}}
+              />
             </div>
           ))}
           <button
             className="update-btns"
             type="button"
-            onClick={() => setProducts([...products, { label: "", image: null, description: "" }])}
+            onClick={() =>
+              setProducts([
+                ...products,
+                {
+                  label: "",
+                  image: null,
+                  description: "",
+                  merchPaypalButton: ""
+                }
+              ])
+            }
           >
             Add Another Product
           </button>
