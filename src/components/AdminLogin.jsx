@@ -3,6 +3,8 @@ import { auth } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import "./tapestyle.css";
+import cassette from "./assets/cassette.webp";
+import tapedeckLogo from "./assets/Logo.png";
 
 function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -29,11 +31,12 @@ function AdminLogin() {
   };
 
   return (
-    <div>
-      <h1>Admin Login</h1>
-      <form onSubmit={handleLogin} className="form-container">
+    <div className="login-container">
+      <img src={cassette} alt="Cassette" className="cassette" />
+      <img src={tapedeckLogo} alt="Tape Deck Logo" className="logo" />
+      <p>Admin Login</p>
+      <form onSubmit={handleLogin}>
         <input
-          className="form-inputs"
           type="email"
           placeholder="Admin Email"
           value={email}
@@ -41,16 +44,15 @@ function AdminLogin() {
           required
         />
         <input
-          className="form-inputs"
           type="password"
           placeholder="Password"
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
         />
-        <button className="update-btns" type="submit">Login</button>
-        {error && <p style={{color: "red"}}>{error}</p>}
+        <button type="submit">Login</button>
       </form>
+      {error && <div className="error">{error}</div>}
     </div>
   );
 }

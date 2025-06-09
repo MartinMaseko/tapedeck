@@ -16,7 +16,6 @@ nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  
 }
 
 .navlogo {
@@ -24,11 +23,59 @@ nav {
   height: auto;
 }
 
+.profile-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.profile-modal-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  min-width: 300px;
+  position: relative;
+}
+.close-btn {
+  position: absolute;
+  top: 8px; right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+.profile-preview {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin: 10px 0;
+}
+.navbar-username {
+  margin-left: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
 .section-titles {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 10px;
+}
+
+.profile-form input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+.profile-image-preview {
+  display: flex;
+  flex-direction: column;
 }
 
 .videos-container,
@@ -42,7 +89,7 @@ nav {
 
 
 .video-iframe {
-  width: 90%;
+  width: 95%;
   height: 300px;
   border-radius: 5px;
   box-shadow: 0 0 32px rgba(0,0,0,0.20); 
@@ -94,13 +141,17 @@ nav {
   gap: 8px;
 }
 
+
 .album-container {
-  padding: 10px;
+  width: 95%;
+  display: flex;
+  flex-direction: column;
 }
 
 .album-cover {
+  margin-top: 20px;
   width: 100%;                 
-  height: auto;     
+  height: auto; 
   border-radius: 5px;
   box-shadow: 0 0 16px rgba(0,0,0,0.20); 
   display: block;
@@ -178,7 +229,8 @@ nav {
   transition: background-color 0.3s;
 }
 
-.form-container input[type="file"]::file-selector-button {
+.form-container input[type="file"]::file-selector-button,
+.profile-image-input[type="file"]::file-selector-button {
   padding: 10px;
   border: none;
   background-color: #ccc;
@@ -186,7 +238,8 @@ nav {
   cursor: pointer;
 }
 
-.form-container input[type="file"]::file-selector-button:hover {
+.form-container input[type="file"]::file-selector-button:hover,
+.profile-image-input[type="file"]::file-selector-button:hover {
   padding: 10px;
   border: none;
   background-color: #197319;
@@ -243,8 +296,70 @@ textarea {
   gap: 20px;
 }
 
+.dashboard-container {
+  min-height: 100vh;
+  background-color: #F0F0F0;
+}
+
 .icons-btns {
   border: none;
   background: none;
   cursor: pointer;
+}
+
+.Dashlogo {
+  width: 150px;
+  height: auto;
+}
+
+.dashNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+}
+
+.dashboard-splash {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.dashboard-cassette {
+  width: 200px;
+  height: auto;
+}
+
+.dashboard-users {
+  padding: 20px;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  border-bottom: 1px solid #ccc;
+  gap: 10px;
+  border-radius: 8px;
+}
+
+.dropdown-btn {
+  background: #197319;
+  color: #F0F0F0;
+  font-weight: bold;
+  border: none;
+  padding: 10px 16px;
+  margin: 8px 0;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.dropdown-btn:hover {
+  background: #006400;
+}
+
+.merch-image, .event-poster {
+  max-width: 100px;
 }
