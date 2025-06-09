@@ -105,7 +105,7 @@ function NavBar() {
             <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
             {user && (
               <span className="navbar-username">
-                {name && surname ? `${name} ${surname}` : user.email}
+                {name && surname ? `${name}` : user.email}
               </span>
             )}
             <h3>Edit Profile</h3>
@@ -116,7 +116,7 @@ function NavBar() {
               <input
               className="form-inputs"
                 type="text"
-                placeholder="Name"
+                placeholder="Username"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
@@ -124,7 +124,7 @@ function NavBar() {
               <input
                 className="form-inputs"
                 type="text"
-                placeholder="Surname"
+                placeholder="Name & Surname"
                 value={surname}
                 onChange={e => setSurname(e.target.value)}
                 required

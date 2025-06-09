@@ -1,5 +1,5 @@
 import './App.css';
-import Main from './components/Main';
+import ArtistPage from './components/ArtistPage';
 import Login from './components/Login';
 import Updates from './components/Updates';
 import AdminLogin from './components/AdminLogin';
@@ -13,7 +13,7 @@ function App() {
     <div className="App">
       <Router>
         <Routes>
-          <Route path="/" element={<Main />} />
+          <Route path="/staxxluciano" element={<ArtistPage username="StaxxLuciano" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/updates" element={
             <ProtectedRoute>

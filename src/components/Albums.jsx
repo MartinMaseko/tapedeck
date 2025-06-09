@@ -1,28 +1,57 @@
 import "./tapestyle.css";
-import IN4U from "./assets/IN4U.webp";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { db } from "../firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
-function Albums() {
+function Albums({ username }) {
+  const [album, setAlbum] = useState(null);
+
   useEffect(() => {
-    function renderButton() {
-      if (window.paypal && window.paypal.HostedButtons) {
-        window.paypal.HostedButtons({
-          hostedButtonId: "HVXKEJ5DGGQVJ",
-        }).render("#paypal-container-HVXKEJ5DGGQVJ");
-      } else {
-        setTimeout(renderButton, 200); 
+    async function fetchAlbum() {
+      if (!username) return;
+      const q = query(collection(db, "Artists"), where("username", "==", username));
+      const snapshot = await getDocs(q);
+      if (!snapshot.empty) {
+        setAlbum(snapshot.docs[0].data().album || null);
       }
     }
-    renderButton();
-  }, []);
+    fetchAlbum();
+  }, [username]);
+
+  useEffect(() => {
+    if (album && album.paypalButtonId) {
+      function renderButton() {
+        if (window.paypal && window.paypal.HostedButtons) {
+          window.paypal.HostedButtons({
+            hostedButtonId: album.paypalButtonId,
+          }).render(`#paypal-container-${album.paypalButtonId}`);
+        } else {
+          setTimeout(renderButton, 200);
+        }
+      }
+      renderButton();
+    }
+  }, [album]);
+
+  if (!album) return <div>No album found.</div>;
 
   return (
     <div>
       <h3>Albums</h3>
       <div className="albums">
         <div className="album-container">
-          <img src={IN4U} className="album-cover" alt="IN4U Album Cover" />
-          <div id="paypal-container-HVXKEJ5DGGQVJ"></div>
+          {album.cover && <img src={album.cover} className="album-cover" alt="Album Cover" />}
+          <ul>
+            {(album.songs || []).map((song, idx) => (
+              <li key={idx}>
+                Track {song.track}: {song.name}
+                <audio controls src={song.url} style={{ marginLeft: 8 }} />
+              </li>
+            ))}
+          </ul>
+          {album.paypalButtonId && (
+            <div id={`paypal-container-${album.paypalButtonId}`}></div>
+          )}
         </div>
       </div>
     </div>

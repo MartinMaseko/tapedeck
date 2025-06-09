@@ -12,7 +12,6 @@ function Dashboard() {
   const [openSections, setOpenSections] = useState({});
 
   useEffect(() => {
-    // Always show splash for at least 3 seconds
     const splashTimeout = setTimeout(() => setShowSplash(false), 3000);
 
     async function fetchUsers() {
@@ -55,12 +54,12 @@ function Dashboard() {
     <div className="dashboard-container">
       <div className="dashNav">
         <img src={Logo} alt="Logo" className="Dashlogo" />
-        <img 
-        width="30" 
-        height="30" 
-        className="menu-icon" 
-        src="https://img.icons8.com/material-two-tone/30/006400/squared-menu.png" 
-        alt="squared-menu"
+        <img
+          width="30"
+          height="30"
+          className="menu-icon"
+          src="https://img.icons8.com/material-two-tone/30/006400/squared-menu.png"
+          alt="squared-menu"
         />
       </div>
       <h2>Admin Dashboard</h2>
@@ -69,52 +68,61 @@ function Dashboard() {
         {users.map(user => (
           <div key={user.id} className="user-section">
             <h3>User: {user.username}</h3>
-            {/* YouTube Links */}
-            <div>
+            {/* Button Row */}
+            <div className="dropdown-btn-row">
               <button className="dropdown-btn" onClick={() => toggleSection(user.id, "youtubeLinks")}>
                 YouTube Links
               </button>
-              {openSections[user.id]?.youtubeLinks && (
-                <ul>
-                  {(user.youtubelinks || []).map((link, idx) => (
-                    <li key={idx}><a href={link} target="_blank" rel="noopener noreferrer">{link}</a></li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            {/* YouTube Channel */}
-            <div>
               <button className="dropdown-btn" onClick={() => toggleSection(user.id, "youtubeChannel")}>
                 YouTube Channel
               </button>
-              {openSections[user.id]?.youtubeChannel && (
-                <p>
-                  <b>YouTube Channel:</b>{" "}
-                  <a href={user.youtubeChannelLink} target="_blank" rel="noopener noreferrer">{user.youtubeChannelLink}</a>
-                </p>
-              )}
-            </div>
-            {/* Streaming Links */}
-            <div>
               <button className="dropdown-btn" onClick={() => toggleSection(user.id, "streamingLinks")}>
                 Streaming Links
               </button>
-              {openSections[user.id]?.streamingLinks && (
-                <ul>
-                  {user.streamingLinks && Object.entries(user.streamingLinks).map(([service, link]) => (
-                    <li key={service}><b>{service}:</b> <a href={link} target="_blank" rel="noopener noreferrer">{link}</a></li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            {/* Album */}
-            <div>
               <button className="dropdown-btn" onClick={() => toggleSection(user.id, "album")}>
                 Album
               </button>
+              <button className="dropdown-btn" onClick={() => toggleSection(user.id, "merch")}>
+                Merchandise
+              </button>
+              <button className="dropdown-btn" onClick={() => toggleSection(user.id, "events")}>
+                Events
+              </button>
+            </div>
+            {/* Dropdown Content Grouped Below Buttons */}
+            <div className="dropdown-content-group">
+              {openSections[user.id]?.youtubeLinks && (
+                <div className="dropdown-content">
+                  <h4>YouTube Links</h4>
+                  <ul>
+                    {(user.youtubelinks || []).map((link, idx) => (
+                      <li key={idx}><a href={link} target="_blank" rel="noopener noreferrer">{link}</a></li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {openSections[user.id]?.youtubeChannel && (
+                <div className="dropdown-content">
+                  <p>
+                    <b>YouTube Channel:</b>{" "}
+                    <a href={user.youtubeChannelLink} target="_blank" rel="noopener noreferrer">{user.youtubeChannelLink}</a>
+                  </p>
+                </div>
+              )}
+              {openSections[user.id]?.streamingLinks && (
+                <div className="dropdown-content">
+                  <h4>Streaming Links</h4>
+                  <ul>
+                    {user.streamingLinks && Object.entries(user.streamingLinks).map(([service, link]) => (
+                      <li key={service}><b>{service}:</b> <a href={link} target="_blank" rel="noopener noreferrer">{link  || "None"}</a></li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {openSections[user.id]?.album && user.album && (
-                <div>
-                  {user.album.cover && <img src={user.album.cover} alt="Album Cover" className="album-cover" />}
+                <div className="dropdown-content">
+                  <h4>Album</h4>
+                  {user.album.cover && <img src={user.album.cover} alt="Album Cover" className="album-cover-dash" />}
                   <ul>
                     {(user.album.songs || []).map((song, idx) => (
                       <li key={idx}>
@@ -124,46 +132,40 @@ function Dashboard() {
                   </ul>
                 </div>
               )}
-            </div>
-            {/* Merchandise */}
-            <div>
-              <button className="dropdown-btn" onClick={() => toggleSection(user.id, "merch")}>
-                Merchandise
-              </button>
               {openSections[user.id]?.merch && (
-                <ul>
-                  {(user.merch || []).map((product, idx) => (
-                    <li key={idx}>
-                      <b>{product.label}</b><br />
-                      {product.image && <img src={product.image} alt={product.label} className="merch-image" />}<br />
-                      {product.description}<br />
-                      {product.merchPaypalButton && (
-                        <details>
-                          <summary>PayPal Button Script</summary>
-                          <pre style={{whiteSpace: "pre-wrap"}}>{product.merchPaypalButton}</pre>
-                        </details>
-                      )}
-                    </li>
-                  ))}
-                </ul>
+                <div className="dropdown-content">
+                  <h4>Merchandise</h4>
+                  <ul>
+                    {(user.merch || []).map((product, idx) => (
+                      <li key={idx}>
+                        <b>{product.label}</b><br />
+                        {product.image && <img src={product.image} alt={product.label} className="merch-image" />}<br />
+                        {product.description}<br />
+                        {product.merchPaypalButton && (
+                          <details>
+                            <summary>PayPal Button Script</summary>
+                            <pre style={{whiteSpace: "pre-wrap"}}>{product.merchPaypalButton}</pre>
+                          </details>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
-            </div>
-            {/* Events */}
-            <div>
-              <button className="dropdown-btn" onClick={() => toggleSection(user.id, "events")}>
-                Events
-              </button>
               {openSections[user.id]?.events && (
-                <ul>
-                  {(user.events || []).map((event, idx) => (
-                    <li key={idx}>
-                      <b>{event.title}</b><br />
-                      {event.poster && <img src={event.poster} alt={event.title} className="event-poster" />}<br />
-                      {event.details}<br />
-                      <a href={event.buyLinks} target="_blank" rel="noopener noreferrer">{event.buyLinks}</a>
-                    </li>
-                  ))}
-                </ul>
+                <div className="dropdown-content">
+                  <h4>Events</h4>
+                  <ul>
+                    {(user.events || []).map((event, idx) => (
+                      <li key={idx}>
+                        <b>{event.title}</b><br />
+                        {event.poster && <img src={event.poster} alt={event.title} className="event-poster" />}<br />
+                        {event.details}<br />
+                        <a href={event.buyLinks} target="_blank" rel="noopener noreferrer">{event.buyLinks}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
           </div>
@@ -174,3 +176,4 @@ function Dashboard() {
 }
 
 export default Dashboard;
+

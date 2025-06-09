@@ -337,11 +337,19 @@ textarea {
 
 .user-section {
   display: flex;
+  flex-direction: column;
   align-items: center;
   margin-top: 10px;
   border-bottom: 1px solid #ccc;
   gap: 10px;
   border-radius: 8px;
+}
+
+.dropdown-btn-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
 .dropdown-btn {
@@ -359,7 +367,29 @@ textarea {
 .dropdown-btn:hover {
   background: #006400;
 }
+.dropdown-content ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.dropdown-content li {
+  text-align: left;
+  margin-bottom: 8px;
+}
+
+.dropdown-content a {
+  text-decoration: none;
+  color: #333;
+  padding: 8px 16px;
+  display: block;
+}
 
 .merch-image, .event-poster {
   max-width: 100px;
+}
+
+.album-cover-dash {
+  max-width: 500px;
 }
