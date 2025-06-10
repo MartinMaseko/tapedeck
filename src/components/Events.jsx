@@ -19,7 +19,7 @@ function Events({ username }) {
   }, [username]);
 
   return (
-    <div>
+    <div className="events-container">
       <h1>Events</h1>
       <ul>
         {events.map((event, idx) => (

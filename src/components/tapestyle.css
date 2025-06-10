@@ -3,14 +3,6 @@ body {
   font-family: "Lexend", sans-serif;
 }
 
-.slider-wrapper {
-  width: 100%;
-  padding: 0;
-  margin: 0;
-  overflow: hidden;
-  background-color: #F0F0F0;
-}
-
 nav {
   padding: 10px;
   display: flex;
@@ -22,6 +14,19 @@ nav {
   width: 100px;
   height: auto;
 }
+.videos-container,
+.albums-maincontainer,
+.events-container,
+.merch-container {
+  background-color: #F0F0F0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+} 
+
 
 .profile-modal {
   position: fixed;
@@ -77,16 +82,6 @@ nav {
   display: flex;
   flex-direction: column;
 }
-
-.videos-container,
-.albums {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  align-items: center;
-  width: 100%;
-}
-
 
 .video-iframe {
   width: 95%;
@@ -149,7 +144,6 @@ nav {
 }
 
 .album-cover {
-  margin-top: 20px;
   width: 100%;                 
   height: auto; 
   border-radius: 5px;

@@ -19,7 +19,7 @@ function Merch({ username }) {
   }, [username]);
 
   return (
-    <div>
+    <div className="merch-container">
       <h1>Merch</h1>
       <ul>
         {merch.map((item, idx) => (

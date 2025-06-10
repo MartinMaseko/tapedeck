@@ -33,10 +33,10 @@ function Albums({ username }) {
     }
   }, [album]);
 
-  if (!album) return <div>No album found.</div>;
+  if (!album) return <div>Loading</div>;
 
   return (
-    <div>
+    <div className="albums-maincontainer">
       <h3>Albums</h3>
       <div className="albums">
         <div className="album-container">
