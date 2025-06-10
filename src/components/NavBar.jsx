@@ -7,8 +7,10 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 function NavBar() {
   const [showModal, setShowModal] = useState(false);
   const [user, setUser] = useState(null);
-  const [name, setName] = useState("");
-  const [surname, setSurname] = useState("");
+  const [cell, setCell] = useState("");
+  const [username, setUsername] = useState("");
+  const [namesurname, setNamesurname] = useState("");
+  const [bankacc, setBankacc] = useState("");
   const [bank, setBank] = useState("");
   const [profileImage, setProfileImage] = useState(null);
   const [profileImageUrl, setProfileImageUrl] = useState("");
@@ -21,8 +23,10 @@ function NavBar() {
         const userDoc = await getDoc(doc(db, "Artists", u.uid));
         if (userDoc.exists()) {
           const data = userDoc.data();
-          setName(data.name || "");
-          setSurname(data.surname || "");
+          setUsername(data.username || "");
+          setNamesurname(data.namesurname || "");
+          setCell(data.cell || "");
+          setBankacc(data.bankacc || "");
           setBank(data.bank || "");
           setProfileImageUrl(data.profileImageUrl || "");
         }
@@ -75,8 +79,9 @@ function NavBar() {
     }
 
     await setDoc(doc(db, "Artists", user.uid), {
-      name,
-      surname,
+      namesurname,
+      cell,
+      bankacc,
       bank,
       profileImageUrl: imageUrl,
     }, { merge: true });
@@ -105,47 +110,60 @@ function NavBar() {
             <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
             {user && (
               <span className="navbar-username">
-                {name && surname ? `${name}` : user.email}
+                {namesurname ? `${username}` : user.email}
               </span>
             )}
-            <h3>Edit Profile</h3>
             <form className="profile-form" onSubmit={handleSave}>
               {profileImageUrl && (
                   <img src={profileImageUrl} alt="Profile" className="profile-preview" />
                 )}
-              <input
-              className="form-inputs"
-                type="text"
-                placeholder="Username"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                required
-              />
-              <input
-                className="form-inputs"
-                type="text"
-                placeholder="Name & Surname"
-                value={surname}
-                onChange={e => setSurname(e.target.value)}
-                required
-              />
-              <input
-                className="form-inputs"
-                type="text"
-                placeholder="Bank Details"
-                value={bank}
-                onChange={e => setBank(e.target.value)}
-                required
-              />
+              <p>Profile Image</p>
               <input
                 className="profile-image-input"
                 type="file"
                 accept="image/*"
                 onChange={handleProfileImageChange}
               />
+              <input
+                className="form-inputs"
+                type="text"
+                placeholder="Name & Surname"
+                value={namesurname || ""}
+                onChange={e => setNamesurname(e.target.value)}
+                required
+              />
+              <input
+                className="form-inputs"
+                type="text"
+                placeholder="Cellphone Number"
+                value={cell || ""}
+                onChange={e => setCell(e.target.value)}
+                required
+              />
+              <input
+                className="form-inputs"
+                type="text"
+                placeholder="Bank Account"
+                value={bankacc || ""}
+                onChange={e => setBankacc(e.target.value)}
+                required
+              />
+              <input
+                className="form-inputs"
+                type="text"
+                placeholder="Bank"
+                value={bank || ""}
+                onChange={e => setBank(e.target.value)}
+                required
+              />
+              <div className="profile-btns">
                 <button type="submit" className="update-btns" disabled={uploading}>
                   {uploading ? "Saving..." : "Save"}
                 </button>
+                <button type="button" className="update-btns" onClick={() => auth.signOut()}>
+                  LogOut
+                </button>
+              </div>
             </form>
           </div>
         </div>

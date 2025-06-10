@@ -4,6 +4,7 @@ import { db, auth } from "../firebase";
 import { doc, setDoc, updateDoc, arrayUnion, query, where, getDocs, collection, getDoc } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import banner from "./assets/tapedeckbanner.webp";
+import pcbanner from "./assets/pcbanner.webp";
 
 function Updates() {
   const [youtubelinks, setyoutubeLinks] = useState(["", "", ""]);
@@ -11,16 +12,20 @@ function Updates() {
   const [numSongs, setNumSongs] = useState(1);
   const [songFiles, setSongFiles] = useState([]); 
   const [albumCover, setAlbumCover] = useState(null);
-  const [paypalHead, setPaypalHead] = useState("");
-  const [paypalEffect, setPaypalEffect] = useState("");
-  const [paypalButton, setPaypalButton] = useState("");
   const [username, setUsername] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [usernameLoading, setUsernameLoading] = useState(false);
   const [usernameCreated, setUsernameCreated] = useState(false);
+  const [updateMsg, setUpdateMsg] = useState("");
+  const [updating, setUpdating] = useState(false);
+  const [ArtistName, setArtistName] = useState("");
+  const [presskitBio, setPresskitBio] = useState("");
+  const [presskitEmail, setPresskitEmail] = useState("");
+  const [presskitContact, setPresskitContact] = useState("");
+  const [presskitGallery, setPresskitGallery] = useState([]);
 
   const [products, setProducts] = useState([
-    { label: "", image: null, description: "", merchPaypalButton: "" }
+    { label: "", image: null, description: ""}
   ]);
 
   const [eventTitle, setEventTitle] = useState("");
@@ -32,7 +37,7 @@ function Updates() {
     spotify: "",
     apple: "",
     youtubeMusic: "",
-    tidal: ""
+    ShareLink: ""
   });
 
   useEffect(() => {
@@ -116,8 +121,12 @@ function Updates() {
 
   const handleUpdateStreaming = async (e) => {
     e.preventDefault();
+    setUpdateMsg("Just a sec...");
+    setUpdating(true);
     const user = auth.currentUser;
     if (!user) {
+      setUpdateMsg("");
+      setUpdating(false);
       alert("You must be logged in.");
       return;
     }
@@ -126,16 +135,23 @@ function Updates() {
         username,
         streamingLinks
       }, { merge: true });
+      setUpdateMsg("All done!");
       alert("Streaming links updated!");
     } catch (err) {
       alert("Error saving streaming links: " + err.message);
     }
+    setUpdating(false);
+    setTimeout(() => setUpdateMsg(""), 2000);
   };
 
   const handleUpdateVideos = async (e) => {
     e.preventDefault();
+    setUpdateMsg("Updating videos...");
+    setUpdating(true);
     const user = auth.currentUser;
     if (!user) {
+      setUpdateMsg("");
+      setUpdating(false);
       alert("You must be logged in.");
       return;
     }
@@ -146,16 +162,23 @@ function Updates() {
         youtubelinks: safeLinks,
         youtubeChannelLink: youtubeChannelLink || ""
       }, { merge: true }); // merge: true keeps other fields
+      setUpdateMsg("All done!");
       alert("YouTube links updated!");
     } catch (err) {
       alert("Error saving links: " + err.message);
     }
+    setUpdateMsg("Videos updated!");
+    setUpdating(false);
   };
 
   const handleUploadRelease = async (e) => {
     e.preventDefault();
+    setUpdateMsg("Uploading release...");
+    setUpdating(true);
     const user = auth.currentUser;
     if (!user) {
+      setUpdateMsg("");
+      setUpdating(false);
       alert("You must be logged in.");
       return;
     }
@@ -184,12 +207,10 @@ function Updates() {
       await setDoc(albumRef, {
         username,
         album: {
-          cover: albumCoverUrl,
-          paypalHead: paypalHead || "",
-          paypalEffect: paypalEffect || "",
-          paypalButton: paypalButton || ""
+          cover: albumCoverUrl || "",
         }
       }, { merge: true });
+      
 
       // Append each song to the album.songs array
       for (const song of uploadedSongs.filter(Boolean)) {
@@ -197,11 +218,12 @@ function Updates() {
           "album.songs": arrayUnion(song)
         });
       }
-
-      alert("Release uploaded!");
+      setUpdateMsg("All done!");
     } catch (err) {
       alert("Error saving release: " + err.message);
     }
+    setUpdating(false);
+    setTimeout(() => setUpdateMsg(""), 2000);
   };
   
   const handleUploadMerch = async (e) => {
@@ -242,8 +264,12 @@ function Updates() {
 
   const handleUploadEvent = async (e) => {
     e.preventDefault();
+    setUpdateMsg("Uploading event...");
+    setUpdating(true);
     const user = auth.currentUser;
     if (!user) {
+      setUpdateMsg("");
+      setUpdating(false);
       alert("You must be logged in.");
       return;
     }
@@ -270,6 +296,59 @@ function Updates() {
     } catch (err) {
       alert("Error saving event: " + err.message);
     }
+  };
+
+  const handleUploadPresskit = async (e) => {
+    e.preventDefault();
+    setUpdateMsg("Uploading presskit...");
+    setUpdating(true);
+    const user = auth.currentUser;
+    if (!user) {
+      setUpdateMsg("");
+      setUpdating(false);
+      alert("You must be logged in.");
+      return;
+    }
+
+    // Convert FileList to array if needed
+    let galleryFiles = presskitGallery;
+    if (galleryFiles && typeof galleryFiles.length === "number" && !Array.isArray(galleryFiles)) {
+      galleryFiles = Array.from(galleryFiles);
+    }
+
+    // Upload all gallery images to Railway
+    let galleryUrls = [];
+    if (galleryFiles && galleryFiles.length > 0) {
+      galleryUrls = await Promise.all(
+        galleryFiles.map(async (file) => {
+          return await uploadToRailway(file, "presskit-gallery", "images");
+        })
+      );
+    }
+
+    try {
+      const artistRef = doc(db, "Artists", user.uid);
+      await setDoc(artistRef, {
+        username,
+        presskit: {
+          name: ArtistName,
+          bio: presskitBio,
+          email: presskitEmail,
+          contact: presskitContact,
+          gallery: galleryUrls.filter(Boolean),
+        }
+      }, { merge: true }); // Use merge to avoid overwriting other fields
+      setUpdateMsg("All done!");
+      setArtistName("");
+      setPresskitBio("");
+      setPresskitEmail("");
+      setPresskitContact("");
+      setPresskitGallery([]);
+    } catch (err) {
+      setUpdateMsg("Error saving presskit: " + err.message);
+    }
+    setUpdating(false);
+    setTimeout(() => setUpdateMsg(""), 2000);
   };
 
   async function uploadToRailway(file, label, fieldName = "images") {
@@ -306,7 +385,17 @@ function Updates() {
   return (
     <div>
       <NavBar />
-      <img src={banner} alt="TapeDeck Banner" style={{ width: "100%", maxHeight: "350px" }} />
+      <img src={banner} alt="TapeDeck Banner" style={{ width: "100%", maxHeight: "350px" }}  className="mobilebanner"/>
+      <div
+          className="updates-bg"
+          style={{
+            background: `url(${pcbanner}) no-repeat center center fixed`,
+          }}
+        >
+        </div>
+      {updateMsg && (
+        <div className="update-message">{updateMsg}</div>
+      )}
       <input
           className="form-inputs"
           type="text"
@@ -344,7 +433,7 @@ function Updates() {
                 className="form-inputs"
                 key={idx}
                 type="text"
-                placeholder={`YouTube Video ${idx + 1}`}
+                placeholder={`YouTube Video Link ${idx + 1}`}
                 value={link || ""} 
                 onChange={e => handleLinkChange(idx, e.target.value)}
                 style={{ display: "block", margin: "10px 0", width: "100%" }}
@@ -358,7 +447,7 @@ function Updates() {
             onChange={e => handleYoutubeChannelChange(e.target.value)}
             style={{ display: "block", margin: "10px 0", width: "100%" }}
           />
-          <button className="update-btns" type="submit">Update Videos</button>
+          <button className="update-btns" type="submit" disabled={updating}>Update Videos</button>
           <div className="section-titles">
             <div className="sectiontitle-container">
               <img 
@@ -396,13 +485,13 @@ function Updates() {
             <input
               className="form-inputs"
               type="text"
-              placeholder="Tidal Link"
-              value={streamingLinks.tidal}
-              onChange={e => handleStreamingLinkChange("tidal", e.target.value)}
+              placeholder="Share Link"
+              value={streamingLinks.ShareLink}
+              onChange={e => handleStreamingLinkChange("ShareLink", e.target.value)}
               style={{ display: "block", margin: "10px 0", width: "100%" }}
             />
           </div>
-        <button className="update-btns" type="button" onClick={handleUpdateStreaming}>Update Streaming</button>
+        <button className="update-btns" disabled={updating} type="button" onClick={handleUpdateStreaming}>Update Streaming</button>
         </div>
         <div className="section-titles">
           <div className="sectiontitle-container">
@@ -465,45 +554,7 @@ function Updates() {
                 {songFiles[idx] && <span>{songFiles[idx].name}</span>}
               </div>
             ))}
-            <div className="section-titles">
-                  <div className="sectiontitle-container">
-                    <img 
-                      width="30" 
-                      height="30" 
-                      src="https://img.icons8.com/ios/30/006400/paypal.png" 
-                      alt="paypal"
-                    />
-                    <h3>PayPal Buy Button Scripts</h3>
-                  </div>
-                  <p> PayPal Script for Head tag:</p>
-                  <textarea
-                    className="form-inputs"
-                    value={paypalHead}
-                    onChange={e => setPaypalHead(e.target.value)}
-                    placeholder="Paste your &lt;script&gt; for head here"
-                    style={{ display: "block", margin: "10px 0", width: "100%" }}
-                    rows={3}
-                  />
-                <p> PayPal Script for body:</p>
-                  <textarea
-                    className="form-inputs"
-                    value={paypalEffect}
-                    onChange={e => setPaypalEffect(e.target.value)}
-                    placeholder="Paste your PayPal button code for useEffect here"
-                    style={{ display: "block", margin: "10px 0", width: "100%" }}
-                    rows={3}
-                  />
-                  <p> PayPal Button Scripts:</p>
-                  <textarea
-                    className="form-inputs"
-                    value={paypalButton}
-                    onChange={e => setPaypalButton(e.target.value)}
-                    placeholder="Paste your PayPal button code here"
-                    style={{ display: "block", margin: "10px 0", width: "100%" }}
-                    rows={3}
-                  />
-                </div>
-        <button className="update-btns" type="submit" onClick={handleUploadRelease}>Upload Release</button>
+        <button className="update-btns" type="submit" disabled={updating} onClick={handleUploadRelease}>Upload Release</button>
         <div className="section-titles">
           <div className="sectiontitle-container">
             <img 
@@ -552,19 +603,6 @@ function Updates() {
                 rows={3}
                 style={{width: "100%", marginTop: "30px", height: "100px" }}
               />
-              <p>PayPal Button Script:</p>
-              <textarea
-                className="form-inputs"
-                placeholder="Paste your PayPal button code here"
-                value={product.merchPaypalButton}
-                onChange={e => {
-                  const newProducts = [...products];
-                  newProducts[idx].merchPaypalButton = e.target.value;
-                  setProducts(newProducts);
-                }}
-                rows={2}
-                style={{width: "100%", marginTop: "10px"}}
-              />
             </div>
           ))}
           <button
@@ -576,15 +614,14 @@ function Updates() {
                 {
                   label: "",
                   image: null,
-                  description: "",
-                  merchPaypalButton: ""
+                  description: ""
                 }
               ])
             }
           >
             Add Another Product
           </button>
-          <button className="update-btns" type="button" onClick={handleUploadMerch}>Upload Item</button>
+          <button className="update-btns" disabled={updating} type="button" onClick={handleUploadMerch}>Upload Item</button>
         </div>
         <div className="section-titles">
           <div className="sectiontitle-container">
@@ -630,7 +667,67 @@ function Updates() {
             style={{ display: "block", margin: "10px 0", width: "100%" }}
           />
         </div>
-        <button className="update-btns" type="button" onClick={handleUploadEvent}>Upload Event</button>
+        <button className="update-btns" disabled={updating} type="button" onClick={handleUploadEvent}>Upload Event</button>
+        <div className="section-titles">
+          <div className="sectiontitle-container">
+            <img 
+              width="30" 
+              height="30" 
+              src="https://img.icons8.com/puffy/30/006400/news.png" 
+              alt="presskit"
+            />
+            <h3>Presskit</h3>
+          </div>
+          <input
+            className="form-inputs"
+            type="text"
+            placeholder="Artist Name"
+            value={ArtistName}
+            onChange={e => setArtistName(e.target.value)}
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
+          <textarea
+            className="form-Bio-inputs"
+            placeholder="Short Bio"
+            value={presskitBio}
+            onChange={e => setPresskitBio(e.target.value)}
+            rows={3}
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
+          <input
+            className="form-inputs"
+            type="email"
+            placeholder="Email"
+            value={presskitEmail}
+            onChange={e => setPresskitEmail(e.target.value)}
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
+          <input
+            className="form-inputs"
+            type="text"
+            placeholder="Contact Number"
+            value={presskitContact}
+            onChange={e => setPresskitContact(e.target.value)}
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
+          <p>Gallery Images</p>
+          <input
+            className="form-inputs"
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={e => setPresskitGallery(e.target.files)}
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
+          <button
+            className="update-btns"
+            disabled={updating}
+            type="button"
+            onClick={handleUploadPresskit}
+          >
+            Upload Presskit
+          </button>
+        </div>
       </form>
     </div>
   );

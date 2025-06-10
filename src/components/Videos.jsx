@@ -26,23 +26,27 @@ function Videos({ username }) {
     fetchLinks();
   }, [username]);
 
-  function sanitizeLink(link) {
-    const match = link.match(/src=["']([^"']+)["']/);
-    return match ? match[1] : link;
+  function toEmbedLink(url) {
+    const match = url.match(
+      /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([A-Za-z0-9_-]{11})/
+    );
+    if (match && match[1]) {
+      return `https://www.youtube.com/embed/${match[1]}`;
+    }
+    return url; 
   }
 
   return (
     <div className="videos-container">
       <h3>Music Videos</h3>
       {links.map((link, idx) => {
-        const sanitized = sanitizeLink(link);
         return (
           <iframe
             key={idx}
             className="video-iframe"
             width="300"
             height="200"
-            src={sanitized}
+            src={toEmbedLink(link)}
             title={`YouTube video ${idx}`}
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
