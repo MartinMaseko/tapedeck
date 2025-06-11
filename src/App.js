@@ -1,7 +1,11 @@
 import './App.css';
-import Main from './components/Main';
+import ArtistPage from './components/ArtistPage';
 import Login from './components/Login';
 import Updates from './components/Updates';
+import AdminLogin from './components/AdminLogin';
+import Dashboard from './components/Dashboard';
+import AdminRoute from './components/AdminRoute';
+import ProtectedRoute from './components/ProtectedRoute';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
@@ -9,9 +13,19 @@ function App() {
     <div className="App">
       <Router>
         <Routes>
-          <Route path="/" element={<Main />} />
+          <Route path="/staxxluciano" element={<ArtistPage username="StaxxLuciano" />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/updates" element={<Updates />} />
+          <Route path="/updates" element={
+            <ProtectedRoute>
+              <Updates />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/dashboard" element={
+            <AdminRoute>
+              <Dashboard />
+            </AdminRoute>
+          } />
         </Routes>
       </Router>
     </div>

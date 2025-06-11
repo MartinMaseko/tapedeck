@@ -3,25 +3,74 @@ body {
   font-family: "Lexend", sans-serif;
 }
 
-.slider-wrapper {
-  width: 100%;
-  padding: 0;
-  margin: 0;
-  overflow: hidden;
-  background-color: #F0F0F0;
-}
-
 nav {
   padding: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  
 }
 
+
+.updates-bg {
+  min-height: 100vh;
+  width: 100vw;
+  background: url('./assets/pcbanner.webp') no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .navlogo {
   width: 100px;
   height: auto;
+}
+.videos-container,
+.albums-maincontainer,
+.events-container,
+.merch-container {
+  background-color: #F0F0F0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+} 
+
+
+.profile-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px;
+  border-radius: 10px;
+  z-index: 1000;
+}
+.profile-modal-content {
+  background: #FEFEFE;
+  padding: 2rem;
+  border-radius: 10px;
+  min-width: 200px;
+  position: relative;
+}
+.close-btn {
+  position: absolute;
+  top: 8px; right: 12px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+.profile-preview {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin: 10px 0;
+}
+.navbar-username {
+  margin-left: 16px;
+  font-weight: bold;
+  color: #333;
 }
 
 .section-titles {
@@ -31,76 +80,165 @@ nav {
   gap: 10px;
 }
 
-.videos-container,
-.albums {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  align-items: center;
+.profile-form input {
   width: 100%;
+  padding: 5px;
+  margin: 5px 0;
+  background: #FEFEFE;
 }
 
+.profile-image-preview {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-btns {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
+.update-message {
+  background: #006400;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  margin: 10px 0;
+  text-align: center;
+  font-weight: bold;
+  transition: opacity 0.3s;
+}
+
+.videos-container {
+    padding: 10px;
+  }
+
+.iframe-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
 .video-iframe {
-  width: 90%;
-  height: 300px;
+  width: 100%;
+  min-height: 300px;
   border-radius: 5px;
   box-shadow: 0 0 32px rgba(0,0,0,0.20); 
   border: none;
   transition: box-shadow 0.3s;
+  margin-bottom: 10px;
 }
 
 .video-iframe:hover {
   box-shadow: 0 16px 32px rgba(0,0,0,0.30);
-} 
-
-.youtube-icon {
-  width: 45px;
-  height: 45px;
-  cursor: pointer;
-  padding-bottom: 10px;
 }
 
-.user-profile-container {
+.videos-header {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100px;
-  background-color: #F0F0F0;
+  gap: 10px;
+  padding: 10px;
 }
 
-.profile-content {
+.youtube-icon {
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+}
+
+.artist-navigation {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #F0F0F0;
+  position: sticky;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.artist-name {
+  display: flex;
+  gap: 5px;
   align-items: center;
 }
 
 .profile-pic {
-  margin-top: 25px;
-  width: 150px;
-  height: 150px;
+  width: 50px;
+  height: 50px;
   border-radius: 100%;
   border: none;
-  cursor: pointer;
   box-shadow: 0 8px 24px rgba(0,0,0,0.50); 
 }
 
-.verified {
+.artist-dropdown-panel {
+  position: absolute;
+  top: 60px; /* adjust as needed to appear below the menu icon */
+  right: 0;
+  background: #F0F0F0;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  min-width: 180px;
+  z-index: 100;
+  padding: 8px 0;
+  animation: fadeIn 0.2s;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+.artist-dropdown-panel .artist-modal-list {
+  border-radius: 0 0 12px 12px;
+  box-shadow: none;
+  background: none;
+}
+.artist-modal-item {
+  padding: 10px 20px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: bold;
+  transition: background-color 0.2s, color 0.2s;
+  list-style: none;
+  text-align: start;
+  border-radius: 10px;
+}
+
+.artist-modal-item:hover {
+  background-color: #006400;
+  color: #FEFEFE;
+  box-shadow: 0 0 16px rgba(0,0,0,0.20); 
+}
+.artist-dropdown-footer {
+  margin-top: 10px;
+  padding: 10px 20px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-weight: bold;
-  font-size: 1.1rem;
-  gap: 8px;
+  gap: 20px;
 }
 
 .album-container {
   padding: 10px;
+  text-align: start;
+}
+
+.album-container ul {
+  padding: 10px 5px;
+  margin: 0;
+}
+
+.album-container li {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  padding-bottom: 10px;
 }
 
 .album-cover {
   width: 100%;                 
-  height: auto;     
+  height: auto; 
   border-radius: 5px;
   box-shadow: 0 0 16px rgba(0,0,0,0.20); 
   display: block;
@@ -173,7 +311,13 @@ nav {
   width: 150px;
 }
 
-.form-container input[type="file"]::file-selector-button {
+.update-btns:hover {
+  background-color: #006400;
+  transition: background-color 0.3s;
+}
+
+.form-container input[type="file"]::file-selector-button,
+.profile-image-input[type="file"]::file-selector-button {
   padding: 10px;
   border: none;
   background-color: #ccc;
@@ -181,7 +325,8 @@ nav {
   cursor: pointer;
 }
 
-.form-container input[type="file"]::file-selector-button:hover {
+.form-container input[type="file"]::file-selector-button:hover,
+.profile-image-input[type="file"]::file-selector-button:hover {
   padding: 10px;
   border: none;
   background-color: #197319;
@@ -192,6 +337,13 @@ nav {
 
 textarea {
   resize: none;
+}
+
+.form-Bio-inputs {
+  border: none;
+  border-bottom: 1px solid #ccc;
+  border-radius: 5px;
+  height: 150px;
 }
 
 .login-container button:hover {
@@ -238,8 +390,227 @@ textarea {
   gap: 20px;
 }
 
+.dashboard-container {
+  min-height: 100vh;
+  background-color: #F0F0F0;
+}
+
 .icons-btns {
   border: none;
   background: none;
   cursor: pointer;
+}
+
+.Dashlogo {
+  width: 150px;
+  height: auto;
+}
+
+.dashNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+}
+
+.dashboard-splash {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.dashboard-cassette {
+  width: 200px;
+  height: auto;
+}
+
+.dashboard-users {
+  padding: 20px;
+}
+
+.user-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+  border-bottom: 1px solid #ccc;
+  gap: 10px;
+  border-radius: 8px;
+}
+
+.dropdown-btn-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.dropdown-btn {
+  background: #197319;
+  color: #F0F0F0;
+  font-weight: bold;
+  border: none;
+  padding: 10px 16px;
+  margin: 8px 0;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.dropdown-btn:hover {
+  background: #006400;
+}
+.dropdown-content ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.dropdown-content li {
+  text-align: left;
+  margin-bottom: 8px;
+}
+
+.dropdown-content a {
+  text-decoration: none;
+  color: #333;
+  padding: 8px 16px;
+  display: block;
+}
+
+.merch-image, .event-poster {
+  max-width: 100px;
+}
+
+.album-cover-dash {
+  max-width: 500px;
+}
+
+.updates-bg {
+  display: none;
+}
+
+.merch-container,
+.event {
+  margin: 0;
+  padding: 10px;
+}
+
+.event h4,
+.event p {
+  text-align: start;
+}
+
+.merch-list li {
+  list-style: none;
+  padding: 10px 0;
+  gap: 5px;
+}
+
+.merch-image {
+  width: 100%;
+  min-width: 300px;
+}
+
+.event-poster {
+  width: 100%;
+  min-width: 300px;
+  border-radius: 5px;
+}
+
+@media (min-width: 600px) {
+  .mobilebanner {
+    display: none !important;
+  }
+  .updates-bg {
+    min-height: 600px;
+    min-width: 100vw;
+    background: url('./assets/pcbanner.webp') no-repeat center center fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+/* Center all content and forms on large screens */
+@media (min-width: 900px) {
+  .form-container {
+    width: 500px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.96);
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .form-inputs,
+  .form-Bio-inputs,
+  .form-container input,
+  .form-container textarea,
+  .form-container select {
+    width: 500px !important;
+    max-width: 100%;
+    margin: 10px 0;
+    box-sizing: border-box;
+    display: block;
+  }
+  .update-btns {
+    width: 200px;
+    margin: 20px auto 0 auto;
+    display: block;
+  }
+  .navbar {
+    min-height: 50px;
+  }
+
+  .videos-container {
+    margin: 0;
+    padding: 10px;
+    min-height: fit-content;
+  }
+
+  .iframe-container {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+
+  .albums-maincontainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .albums {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .album-container {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .album-cover {
+    width: 100%;
+    max-width: 350px;
+    min-width: 300px;
+    height: auto;
+    margin-right: 20px;
+  }
+
+  .merch-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .merch-image {
+    max-width: 500px;
+  }
 }

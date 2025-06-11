@@ -1,9 +1,10 @@
 import "./tapestyle.css";
 import NavBar from "./NavBar";
 import { db, auth } from "../firebase";
-import { doc, setDoc } from "firebase/firestore";
-import { useState } from "react";
+import { doc, setDoc, updateDoc, arrayUnion, query, where, getDocs, collection, getDoc } from "firebase/firestore";
+import { useState, useEffect } from "react";
 import banner from "./assets/tapedeckbanner.webp";
+import pcbanner from "./assets/pcbanner.webp";
 
 function Updates() {
   const [youtubelinks, setyoutubeLinks] = useState(["", "", ""]);
@@ -11,8 +12,95 @@ function Updates() {
   const [numSongs, setNumSongs] = useState(1);
   const [songFiles, setSongFiles] = useState([]); 
   const [albumCover, setAlbumCover] = useState(null);
-  const [paypalHead, setPaypalHead] = useState("");
-  const [paypalEffect, setPaypalEffect] = useState("");
+  const [username, setUsername] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [usernameLoading, setUsernameLoading] = useState(false);
+  const [usernameCreated, setUsernameCreated] = useState(false);
+  const [updateMsg, setUpdateMsg] = useState("");
+  const [updating, setUpdating] = useState(false);
+  const [ArtistName, setArtistName] = useState("");
+  const [presskitBio, setPresskitBio] = useState("");
+  const [presskitEmail, setPresskitEmail] = useState("");
+  const [presskitContact, setPresskitContact] = useState("");
+  const [presskitGallery, setPresskitGallery] = useState([]);
+
+  const [products, setProducts] = useState([
+    { label: "", image: null, description: ""}
+  ]);
+
+  const [eventTitle, setEventTitle] = useState("");
+  const [eventPoster, setEventPoster] = useState(null);
+  const [eventDetails, setEventDetails] = useState("");
+  const [eventBuyLinks, setEventBuyLinks] = useState("");
+
+  const [streamingLinks, setStreamingLinks] = useState({
+    spotify: "",
+    apple: "",
+    youtubeMusic: "",
+    ShareLink: ""
+  });
+
+  useEffect(() => {
+    fetchUsername();
+  }, []);
+
+  const fetchUsername = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      const userDocRef = doc(db, "Artists", user.uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        if (data.username) {
+          setUsername(data.username);
+          setUsernameCreated(true);
+        }
+      }
+    }
+  };
+
+  // Username uniqueness check
+  const checkUsernameUnique = async (username) => {
+    const q = query(collection(db, "Artists"), where("username", "==", username));
+    const snapshot = await getDocs(q);
+    return snapshot.empty;
+  };
+
+  // Handle username creation
+  const handleCreateUsername = async () => {
+    setUsernameError("");
+    setUsernameLoading(true);
+    const user = auth.currentUser;
+    if (!user) {
+      setUsernameError("You must be logged in.");
+      setUsernameLoading(false);
+      return;
+    }
+    if (!username) {
+      setUsernameError("Username is required.");
+      setUsernameLoading(false);
+      return;
+    }
+    // Only check uniqueness if admin
+    let isUnique = true;
+    const token = await user.getIdTokenResult();
+    if (token.claims.admin) {
+      isUnique = await checkUsernameUnique(username);
+      if (!isUnique) {
+        setUsernameError("Username already exists. Please choose another.");
+        setUsernameLoading(false);
+        return;
+      }
+    }
+    try {
+      await setDoc(doc(db, "Artists", user.uid), { username }, { merge: true });
+      setUsernameCreated(true);
+      setUsernameError("");
+    } catch (err) {
+      setUsernameError("Error saving username: " + err.message);
+    }
+    setUsernameLoading(false);
+  };
 
   const handleLinkChange = (index, value) => {
     const newLinks = [...youtubelinks];
@@ -24,30 +112,73 @@ function Updates() {
     setYoutubeChannelLink(value);
   }
 
+  const handleStreamingLinkChange = (service, value) => {
+    setStreamingLinks(prev => ({
+      ...prev,
+      [service]: value
+    }));
+  };
+
+  const handleUpdateStreaming = async (e) => {
+    e.preventDefault();
+    setUpdateMsg("Just a sec...");
+    setUpdating(true);
+    const user = auth.currentUser;
+    if (!user) {
+      setUpdateMsg("");
+      setUpdating(false);
+      alert("You must be logged in.");
+      return;
+    }
+    try {
+      await setDoc(doc(db, "Artists", user.uid), {
+        username,
+        streamingLinks
+      }, { merge: true });
+      setUpdateMsg("All done!");
+      alert("Streaming links updated!");
+    } catch (err) {
+      alert("Error saving streaming links: " + err.message);
+    }
+    setUpdating(false);
+    setTimeout(() => setUpdateMsg(""), 2000);
+  };
 
   const handleUpdateVideos = async (e) => {
     e.preventDefault();
+    setUpdateMsg("Updating videos...");
+    setUpdating(true);
     const user = auth.currentUser;
     if (!user) {
+      setUpdateMsg("");
+      setUpdating(false);
       alert("You must be logged in.");
       return;
     }
     const safeLinks = youtubelinks.map(link => link || "");
     try {
       await setDoc(doc(db, "Artists", user.uid), {
+        username,
         youtubelinks: safeLinks,
         youtubeChannelLink: youtubeChannelLink || ""
       }, { merge: true }); // merge: true keeps other fields
+      setUpdateMsg("All done!");
       alert("YouTube links updated!");
     } catch (err) {
       alert("Error saving links: " + err.message);
     }
+    setUpdateMsg("Videos updated!");
+    setUpdating(false);
   };
 
   const handleUploadRelease = async (e) => {
     e.preventDefault();
+    setUpdateMsg("Uploading release...");
+    setUpdating(true);
     const user = auth.currentUser;
     if (!user) {
+      setUpdateMsg("");
+      setUpdating(false);
       alert("You must be logged in.");
       return;
     }
@@ -69,20 +200,158 @@ function Updates() {
       };
     }));
 
-    // 3. Save to Firestore
+    // 3. Build the album object
+    const albumObj = {
+      cover: albumCoverUrl || "",
+      songs: uploadedSongs.filter(Boolean)
+    };
+
+    // 4. Append the album object to the albums array in Firestore
     try {
-      await setDoc(doc(db, "Artists", user.uid), {
-        album: {
-          cover: albumCoverUrl,
-          songs: uploadedSongs.filter(Boolean),
-          paypalHead: paypalHead || "",
-          paypalEffect: paypalEffect || ""
-        }
-      }, { merge: true });
-      alert("Release uploaded!");
+      const albumRef = doc(db, "Artists", user.uid);
+      await updateDoc(albumRef, {
+        username,
+        albums: arrayUnion(albumObj)
+      });
+      setUpdateMsg("Release uploaded successfully!");
+      // Optionally reset form fields here
     } catch (err) {
-      alert("Error saving release: " + err.message);
+      setUpdateMsg("Error saving release: " + err.message);
     }
+    setUpdating(false);
+    setTimeout(() => setUpdateMsg(""), 3000); // Clear message after 3s
+  };
+  
+  const handleUploadMerch = async (e) => {
+    e.preventDefault();
+    setUpdateMsg("Uploading merchandise...");
+    setUpdating(true);
+    const user = auth.currentUser;
+    if (!user) {
+      setUpdateMsg("");
+      setUpdating(false);
+      alert("You must be logged in.");
+      return;
+    }
+    // Upload all images and build product objects
+    const uploadedProducts = await Promise.all(products.map(async (product) => {
+      let imageUrl = "";
+      if (product.image) {
+        imageUrl = await uploadToRailway(product.image, product.label, "images");
+      }
+      return {
+        label: product.label,
+        description: product.description,
+        image: imageUrl
+      };
+    }));
+
+    try {
+      const merchRef = doc(db, "Artists", user.uid);
+      for (const product of uploadedProducts) {
+        await updateDoc(merchRef, {
+          username,
+          merch: arrayUnion(product)
+        });
+      }
+      setUpdateMsg("Merchandise uploaded successfully!");
+      setProducts([{ label: "", image: null, description: "" }]);
+    } catch (err) {
+      setUpdateMsg("Error saving merch: " + err.message);
+    }
+    setUpdating(false);
+    setTimeout(() => setUpdateMsg(""), 3000);
+  };
+
+  const handleUploadEvent = async (e) => {
+    e.preventDefault();
+    setUpdateMsg("Uploading event...");
+    setUpdating(true);
+    const user = auth.currentUser;
+    if (!user) {
+      setUpdateMsg("");
+      setUpdating(false);
+      alert("You must be logged in.");
+      return;
+    }
+    let posterUrl = "";
+    if (eventPoster) {
+      posterUrl = await uploadToRailway(eventPoster, "eventPoster", "images");
+    }
+    try {
+      const eventRef = doc(db, "Artists", user.uid);
+      await updateDoc(eventRef, {
+        username,
+        events: arrayUnion({
+          title: eventTitle,
+          poster: posterUrl,
+          details: eventDetails,
+          buyLinks: eventBuyLinks
+        })
+      });
+      setUpdateMsg("Event uploaded successfully!");
+      setEventTitle("");
+      setEventPoster(null);
+      setEventDetails("");
+      setEventBuyLinks("");
+    } catch (err) {
+      setUpdateMsg("Error saving event: " + err.message);
+    }
+    setUpdating(false);
+    setTimeout(() => setUpdateMsg(""), 3000);
+  };
+
+  const handleUploadPresskit = async (e) => {
+    e.preventDefault();
+    setUpdateMsg("Uploading presskit...");
+    setUpdating(true);
+    const user = auth.currentUser;
+    if (!user) {
+      setUpdateMsg("");
+      setUpdating(false);
+      alert("You must be logged in.");
+      return;
+    }
+
+    // Convert FileList to array if needed
+    let galleryFiles = presskitGallery;
+    if (galleryFiles && typeof galleryFiles.length === "number" && !Array.isArray(galleryFiles)) {
+      galleryFiles = Array.from(galleryFiles);
+    }
+
+    // Upload all gallery images to Railway
+    let galleryUrls = [];
+    if (galleryFiles && galleryFiles.length > 0) {
+      galleryUrls = await Promise.all(
+        galleryFiles.map(async (file) => {
+          return await uploadToRailway(file, "presskit-gallery", "images");
+        })
+      );
+    }
+
+    try {
+      const artistRef = doc(db, "Artists", user.uid);
+      await setDoc(artistRef, {
+        username,
+        presskit: {
+          name: ArtistName,
+          bio: presskitBio,
+          email: presskitEmail,
+          contact: presskitContact,
+          gallery: galleryUrls.filter(Boolean),
+        }
+      }, { merge: true }); // Use merge to avoid overwriting other fields
+      setUpdateMsg("Presskit uploaded successfully!");
+      setArtistName("");
+      setPresskitBio("");
+      setPresskitEmail("");
+      setPresskitContact("");
+      setPresskitGallery([]);
+    } catch (err) {
+      setUpdateMsg("Error saving presskit: " + err.message);
+    }
+    setUpdating(false);
+    setTimeout(() => setUpdateMsg(""), 3000);
   };
 
   async function uploadToRailway(file, label, fieldName = "images") {
@@ -119,7 +388,36 @@ function Updates() {
   return (
     <div>
       <NavBar />
-      <img src={banner} alt="TapeDeck Banner" style={{ width: "100%", maxHeight: "350px" }} />
+      <img src={banner} alt="TapeDeck Banner" style={{ width: "100%", maxHeight: "350px" }}  className="mobilebanner"/>
+      <div
+          className="updates-bg"
+          style={{
+            background: `url(${pcbanner}) no-repeat center center fixed`,
+          }}
+        >
+        </div>
+      {updateMsg && (
+        <div className="update-message">{updateMsg}</div>
+      )}
+      <input
+          className="form-inputs"
+          type="text"
+          placeholder="Choose a unique username"
+          value={username}
+          onChange={e => setUsername(e.target.value.trim())}
+          style={{ display: "inline-block", margin: "10px 10px 10px 0", width: "300px" }}
+          disabled={usernameCreated}
+        />
+        <button
+          className="update-btns"
+          type="button"
+          onClick={handleCreateUsername}
+          disabled={usernameCreated || usernameLoading}
+        >
+          {usernameCreated ? "Username Created" : usernameLoading ? "Checking..." : "Create Username"}
+        </button>
+        {usernameError && <p style={{color: "red"}}>{usernameError}</p>}
+        {usernameCreated && <p style={{color: "green"}}>@{username}</p>}
       <form 
         className="form-container"
         onSubmit={handleUpdateVideos}>
@@ -138,7 +436,7 @@ function Updates() {
                 className="form-inputs"
                 key={idx}
                 type="text"
-                placeholder={`YouTube Video ${idx + 1}`}
+                placeholder={`YouTube Video Link ${idx + 1}`}
                 value={link || ""} 
                 onChange={e => handleLinkChange(idx, e.target.value)}
                 style={{ display: "block", margin: "10px 0", width: "100%" }}
@@ -152,7 +450,51 @@ function Updates() {
             onChange={e => handleYoutubeChannelChange(e.target.value)}
             style={{ display: "block", margin: "10px 0", width: "100%" }}
           />
-        <button className="update-btns" type="submit">Update Videos</button>
+          <button className="update-btns" type="submit" disabled={updating}>Update Videos</button>
+          <div className="section-titles">
+            <div className="sectiontitle-container">
+              <img 
+                width="30" 
+                height="30" 
+                src="https://img.icons8.com/ios/30/006400/itunes.png" 
+                alt="streaming"
+              />
+              <h3>Streaming Links</h3>
+            </div>
+            <input
+              className="form-inputs"
+              type="text"
+              placeholder="Spotify Link"
+              value={streamingLinks.spotify}
+              onChange={e => handleStreamingLinkChange("spotify", e.target.value)}
+              style={{ display: "block", margin: "10px 0", width: "100%" }}
+            />
+            <input
+              className="form-inputs"
+              type="text"
+              placeholder="Apple Music Link"
+              value={streamingLinks.apple}
+              onChange={e => handleStreamingLinkChange("apple", e.target.value)}
+              style={{ display: "block", margin: "10px 0", width: "100%" }}
+            />
+            <input
+              className="form-inputs"
+              type="text"
+              placeholder="YouTube Music Link"
+              value={streamingLinks.youtubeMusic}
+              onChange={e => handleStreamingLinkChange("youtubeMusic", e.target.value)}
+              style={{ display: "block", margin: "10px 0", width: "100%" }}
+            />
+            <input
+              className="form-inputs"
+              type="text"
+              placeholder="Share Link"
+              value={streamingLinks.ShareLink}
+              onChange={e => handleStreamingLinkChange("ShareLink", e.target.value)}
+              style={{ display: "block", margin: "10px 0", width: "100%" }}
+            />
+          </div>
+        <button className="update-btns" disabled={updating} type="button" onClick={handleUpdateStreaming}>Update Streaming</button>
         </div>
         <div className="section-titles">
           <div className="sectiontitle-container">
@@ -176,15 +518,21 @@ function Updates() {
           <input
             className="form-inputs"
             type="number"
-            min={1}
-            max={20}
-            value={numSongs}
+            value={numSongs === "" ? "" : numSongs}
             onChange={e => {
-              const val = Math.max(1, Math.min(20, Number(e.target.value)));
-              setNumSongs(val);
+              const val = e.target.value;
+              // Allow empty input for editing
+              if (val === "") {
+                setNumSongs("");
+                setSongFiles([]);
+                return;
+              }
+              // Only update if valid number
+              const num = Math.max(1, Math.min(25, Number(val)));
+              setNumSongs(num);
               setSongFiles(files => {
                 const newFiles = [...files];
-                newFiles.length = val;
+                newFiles.length = num;
                 return newFiles;
               });
             }}
@@ -207,38 +555,9 @@ function Updates() {
                   style={{ display: "block", margin: "5px 0" }}
                 />
                 {songFiles[idx] && <span>{songFiles[idx].name}</span>}
-                <div className="section-titles">
-                  <div className="sectiontitle-container">
-                    <img 
-                      width="30" 
-                      height="30" 
-                      src="https://img.icons8.com/ios/30/006400/paypal.png" 
-                      alt="paypal"
-                    />
-                    <h3>PayPal Buy Button Scripts</h3>
-                  </div>
-                  <p> PayPal Script for Head tag:</p>
-                  <textarea
-                    className="form-inputs"
-                    value={paypalHead}
-                    onChange={e => setPaypalHead(e.target.value)}
-                    placeholder="Paste your &lt;script&gt; for head here"
-                    style={{ display: "block", margin: "10px 0", width: "100%" }}
-                    rows={3}
-                  />
-                <p> PayPal Script for body:</p>
-                  <textarea
-                    className="form-inputs"
-                    value={paypalEffect}
-                    onChange={e => setPaypalEffect(e.target.value)}
-                    placeholder="Paste your PayPal button code for useEffect here"
-                    style={{ display: "block", margin: "10px 0", width: "100%" }}
-                    rows={3}
-                  />
-                </div>
               </div>
             ))}
-        <button className="update-btns" type="submit" onClick={handleUploadRelease}>Upload Release</button>
+        <button className="update-btns" type="submit" disabled={updating} onClick={handleUploadRelease}>Upload Release</button>
         <div className="section-titles">
           <div className="sectiontitle-container">
             <img 
@@ -250,28 +569,63 @@ function Updates() {
             <h3>Merchandise</h3>
           </div>
           {/* Merchandise Inputs */}
-          <input
-            className="form-inputs"
-            type="text"
-            placeholder="Product Label"
-            style={{ display: "block", margin: "10px 0", width: "100%" }}
-          />
-          <p>Product Image</p>
-          <input
-            className="form-inputs"
-            type="file"
-            accept="image/*"
-            placeholder="Upload Product Image"
-            style={{ display: "block", margin: "10px 0", width: "100%" }}
-          />
-          <textarea
-            className="form-inputs"
-            placeholder="Product Description"
-            rows={3}
-            style={{ display: "block", margin: "10px 0", width: "100%" }}
-          />
+          {products.map((product, idx) => (
+            <div key={idx}>
+              <input
+                className="form-inputs"
+                type="text"
+                placeholder="Product Label"
+                value={product.label}
+                onChange={e => {
+                  const newProducts = [...products];
+                  newProducts[idx].label = e.target.value;
+                  setProducts(newProducts);
+                }}
+                style={{width: "100%" }}
+              />
+              <p>Product Image</p>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={e => {
+                  const newProducts = [...products];
+                  newProducts[idx].image = e.target.files[0];
+                  setProducts(newProducts);
+                }}
+                style={{ width: "100%", marginTop: "10px" }}
+              />
+              <textarea
+                className="form-inputs"
+                placeholder="Product Description"
+                value={product.description}
+                onChange={e => {
+                  const newProducts = [...products];
+                  newProducts[idx].description = e.target.value;
+                  setProducts(newProducts);
+                }}
+                rows={3}
+                style={{width: "100%", marginTop: "30px", height: "100px" }}
+              />
+            </div>
+          ))}
+          <button
+            className="update-btns"
+            type="button"
+            onClick={() =>
+              setProducts([
+                ...products,
+                {
+                  label: "",
+                  image: null,
+                  description: ""
+                }
+              ])
+            }
+          >
+            Add Another Product
+          </button>
+          <button className="update-btns" disabled={updating} type="button" onClick={handleUploadMerch}>Upload Item</button>
         </div>
-        <button className="update-btns" type="submit">Upload Item</button>
         <div className="section-titles">
           <div className="sectiontitle-container">
             <img 
@@ -287,6 +641,8 @@ function Updates() {
             className="form-inputs"
             type="text"
             placeholder="Event Title"
+            value={eventTitle}
+            onChange={e => setEventTitle(e.target.value)}
             style={{ display: "block", margin: "10px 0", width: "100%" }}
           />
           <p>Event Poster </p>
@@ -294,12 +650,14 @@ function Updates() {
             className="form-inputs"
             type="file"
             accept="image/*"
-            placeholder="Upload Event Poster"
+            onChange={e => setEventPoster(e.target.files[0])}
             style={{ display: "block", margin: "10px 0", width: "100%" }}
           />
           <textarea
             className="form-inputs"
             placeholder="Event Details"
+            value={eventDetails}
+            onChange={e => setEventDetails(e.target.value)}
             rows={3}
             style={{ display: "block", margin: "10px 0", width: "100%" }}
           />
@@ -307,10 +665,72 @@ function Updates() {
             className="form-inputs"
             type="text"
             placeholder="Event Buy Links"
+            value={eventBuyLinks}
+            onChange={e => setEventBuyLinks(e.target.value)}
             style={{ display: "block", margin: "10px 0", width: "100%" }}
           />
         </div>
-        <button className="update-btns" type="submit">Upload Event</button>
+        <button className="update-btns" disabled={updating} type="button" onClick={handleUploadEvent}>Upload Event</button>
+        <div className="section-titles">
+          <div className="sectiontitle-container">
+            <img 
+              width="30" 
+              height="30" 
+              src="https://img.icons8.com/puffy/30/006400/news.png" 
+              alt="presskit"
+            />
+            <h3>Presskit</h3>
+          </div>
+          <input
+            className="form-inputs"
+            type="text"
+            placeholder="Artist Name"
+            value={ArtistName}
+            onChange={e => setArtistName(e.target.value)}
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
+          <textarea
+            className="form-Bio-inputs"
+            placeholder="Short Bio"
+            value={presskitBio}
+            onChange={e => setPresskitBio(e.target.value)}
+            rows={3}
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
+          <input
+            className="form-inputs"
+            type="email"
+            placeholder="Email"
+            value={presskitEmail}
+            onChange={e => setPresskitEmail(e.target.value)}
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
+          <input
+            className="form-inputs"
+            type="text"
+            placeholder="Contact Number"
+            value={presskitContact}
+            onChange={e => setPresskitContact(e.target.value)}
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
+          <p>Gallery Images</p>
+          <input
+            className="form-inputs"
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={e => setPresskitGallery(e.target.files)}
+            style={{ display: "block", margin: "10px 0", width: "100%" }}
+          />
+          <button
+            className="update-btns"
+            disabled={updating}
+            type="button"
+            onClick={handleUploadPresskit}
+          >
+            Upload Presskit
+          </button>
+        </div>
       </form>
     </div>
   );
