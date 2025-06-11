@@ -200,40 +200,39 @@ function Updates() {
       };
     }));
 
-    // 3. Append songs to Firestore album.songs array
+    // 3. Build the album object
+    const albumObj = {
+      cover: albumCoverUrl || "",
+      songs: uploadedSongs.filter(Boolean)
+    };
+
+    // 4. Append the album object to the albums array in Firestore
     try {
       const albumRef = doc(db, "Artists", user.uid);
-      // Update album cover and PayPal fields (object merge)
-      await setDoc(albumRef, {
+      await updateDoc(albumRef, {
         username,
-        album: {
-          cover: albumCoverUrl || "",
-        }
-      }, { merge: true });
-      
-
-      // Append each song to the album.songs array
-      for (const song of uploadedSongs.filter(Boolean)) {
-        await updateDoc(albumRef, {
-          "album.songs": arrayUnion(song)
-        });
-      }
-      setUpdateMsg("All done!");
+        albums: arrayUnion(albumObj)
+      });
+      setUpdateMsg("Release uploaded successfully!");
+      // Optionally reset form fields here
     } catch (err) {
-      alert("Error saving release: " + err.message);
+      setUpdateMsg("Error saving release: " + err.message);
     }
     setUpdating(false);
-    setTimeout(() => setUpdateMsg(""), 2000);
+    setTimeout(() => setUpdateMsg(""), 3000); // Clear message after 3s
   };
   
   const handleUploadMerch = async (e) => {
     e.preventDefault();
+    setUpdateMsg("Uploading merchandise...");
+    setUpdating(true);
     const user = auth.currentUser;
     if (!user) {
+      setUpdateMsg("");
+      setUpdating(false);
       alert("You must be logged in.");
       return;
     }
-
     // Upload all images and build product objects
     const uploadedProducts = await Promise.all(products.map(async (product) => {
       let imageUrl = "";
@@ -255,11 +254,13 @@ function Updates() {
           merch: arrayUnion(product)
         });
       }
-      alert("Merchandise uploaded!");
+      setUpdateMsg("Merchandise uploaded successfully!");
       setProducts([{ label: "", image: null, description: "" }]);
     } catch (err) {
-      alert("Error saving merch: " + err.message);
+      setUpdateMsg("Error saving merch: " + err.message);
     }
+    setUpdating(false);
+    setTimeout(() => setUpdateMsg(""), 3000);
   };
 
   const handleUploadEvent = async (e) => {
@@ -288,14 +289,16 @@ function Updates() {
           buyLinks: eventBuyLinks
         })
       });
-      alert("Event uploaded!");
+      setUpdateMsg("Event uploaded successfully!");
       setEventTitle("");
       setEventPoster(null);
       setEventDetails("");
       setEventBuyLinks("");
     } catch (err) {
-      alert("Error saving event: " + err.message);
+      setUpdateMsg("Error saving event: " + err.message);
     }
+    setUpdating(false);
+    setTimeout(() => setUpdateMsg(""), 3000);
   };
 
   const handleUploadPresskit = async (e) => {
@@ -338,7 +341,7 @@ function Updates() {
           gallery: galleryUrls.filter(Boolean),
         }
       }, { merge: true }); // Use merge to avoid overwriting other fields
-      setUpdateMsg("All done!");
+      setUpdateMsg("Presskit uploaded successfully!");
       setArtistName("");
       setPresskitBio("");
       setPresskitEmail("");
@@ -348,7 +351,7 @@ function Updates() {
       setUpdateMsg("Error saving presskit: " + err.message);
     }
     setUpdating(false);
-    setTimeout(() => setUpdateMsg(""), 2000);
+    setTimeout(() => setUpdateMsg(""), 3000);
   };
 
   async function uploadToRailway(file, label, fieldName = "images") {

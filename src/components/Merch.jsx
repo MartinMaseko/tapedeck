@@ -21,18 +21,15 @@ function Merch({ username }) {
   return (
     <div className="merch-container">
       <h1>Merch</h1>
-      <ul>
+      <div className="merch-list">
         {merch.map((item, idx) => (
-          <li key={idx}>
-            <b>{item.label}</b><br />
-            {item.image && <img src={item.image} alt={item.label} className="merch-image" />}<br />
-            {item.description}<br />
-            {item.merchPaypalButton && (
-              <div dangerouslySetInnerHTML={{ __html: item.merchPaypalButton }} />
-            )}
-          </li>
+          <div key={idx}>
+            <h4>{item.label}</h4>
+            {item.image && <img src={item.image} alt={item.label} className="merch-image" />}
+            <p>{item.description}</p>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

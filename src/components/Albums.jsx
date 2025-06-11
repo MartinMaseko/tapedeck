@@ -1,59 +1,65 @@
 import "./tapestyle.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { db } from "../firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 
 function Albums({ username }) {
-  const [album, setAlbum] = useState(null);
+  const [albums, setAlbums] = useState([]);
+  const [currentSong, setCurrentSong] = useState(null);
+  const audioRef = useRef(null);
 
   useEffect(() => {
-    async function fetchAlbum() {
+    async function fetchAlbums() {
       if (!username) return;
       const q = query(collection(db, "Artists"), where("username", "==", username));
       const snapshot = await getDocs(q);
       if (!snapshot.empty) {
-        setAlbum(snapshot.docs[0].data().album || null);
+        setAlbums(snapshot.docs[0].data().albums || []);
       }
     }
-    fetchAlbum();
+    fetchAlbums();
   }, [username]);
 
+  // Play the song when currentSong changes
   useEffect(() => {
-    if (album && album.paypalButtonId) {
-      function renderButton() {
-        if (window.paypal && window.paypal.HostedButtons) {
-          window.paypal.HostedButtons({
-            hostedButtonId: album.paypalButtonId,
-          }).render(`#paypal-container-${album.paypalButtonId}`);
-        } else {
-          setTimeout(renderButton, 200);
-        }
-      }
-      renderButton();
+    if (audioRef.current && currentSong) {
+      audioRef.current.load();
+      audioRef.current.play();
     }
-  }, [album]);
+  }, [currentSong]);
 
-  if (!album) return <div>Loading</div>;
-
-  return (
+  return ( 
     <div className="albums-maincontainer">
       <h3>Albums</h3>
       <div className="albums">
-        <div className="album-container">
-          {album.cover && <img src={album.cover} className="album-cover" alt="Album Cover" />}
-          <ul>
-            {(album.songs || []).map((song, idx) => (
-              <li key={idx}>
-                Track {song.track}: {song.name}
-                <audio controls src={song.url} style={{ marginLeft: 8 }} />
-              </li>
-            ))}
-          </ul>
-          {album.paypalButtonId && (
-            <div id={`paypal-container-${album.paypalButtonId}`}></div>
-          )}
-        </div>
+        {albums.map((album, idx) => (
+          <div className="album-container" key={idx}>
+            {album.cover && <img src={album.cover} className="album-cover" alt={`Album Cover ${idx + 1}`} />}
+            <div className="album-section">
+              <ul>
+                {(album.songs || []).map((song, sidx) => (
+                  <li
+                    key={sidx}
+                    style={{ cursor: "pointer", color: currentSong === song.url ? "#006400" : undefined }}
+                    onClick={() => setCurrentSong(song.url)}
+                  >
+                    {song.track}: {song.name}
+                  </li>
+                ))} 
+              </ul>
+            </div>
+          </div>
+        ))}
       </div>
+      <audio
+          ref={audioRef}
+          controls
+          controlsList="nodownload noplaybackrate"
+          src={currentSong || ""}
+          style={{ width: "100%"}}
+          >
+          Your browser does not support the audio element.
+        </audio>
     </div>
   );
 }

@@ -38,28 +38,30 @@ function Videos({ username }) {
 
   return (
     <div className="videos-container">
-      <h3>Music Videos</h3>
-      {links.map((link, idx) => {
-        return (
-          <iframe
-            key={idx}
-            className="video-iframe"
-            width="300"
-            height="200"
-            src={toEmbedLink(link)}
-            title={`YouTube video ${idx}`}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-          />
-        );
-      })}
-      <img
-        className="youtube-icon"
-        src="https://img.icons8.com/fluency/35/youtube.png"
-        alt="YouTube Icon"
-        onClick={() => window.open(channel, "_blank")}
-      />
+      <div className="videos-header">
+        <img
+          className="youtube-icon"
+          src="https://img.icons8.com/color/35/youtube-squared.png"
+          alt="YouTube Icon"
+          onClick={() => window.open(channel, "_blank")}
+        />
+        <h3>Music Videos</h3>
+      </div>
+      <div className="iframe-container">
+        {links.map((link, idx) => {
+          return (
+            <iframe
+              key={idx}
+              className="video-iframe"
+              src={toEmbedLink(link)}
+              title={`YouTube video ${idx}`}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }

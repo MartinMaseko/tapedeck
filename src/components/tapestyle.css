@@ -31,9 +31,6 @@ nav {
   background-color: #F0F0F0;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  align-items: center;
-  width: 100%;
   min-height: 100vh;
 } 
 
@@ -102,15 +99,6 @@ nav {
   gap: 5px;
 }
 
-.video-iframe {
-  width: 95%;
-  height: 300px;
-  border-radius: 5px;
-  box-shadow: 0 0 32px rgba(0,0,0,0.20); 
-  border: none;
-  transition: box-shadow 0.3s;
-}
-
 .update-message {
   background: #006400;
   color: #fff;
@@ -122,15 +110,42 @@ nav {
   transition: opacity 0.3s;
 }
 
+.videos-container {
+    padding: 10px;
+  }
+
+.iframe-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.video-iframe {
+  width: 100%;
+  min-height: 300px;
+  border-radius: 5px;
+  box-shadow: 0 0 32px rgba(0,0,0,0.20); 
+  border: none;
+  transition: box-shadow 0.3s;
+  margin-bottom: 10px;
+}
+
 .video-iframe:hover {
   box-shadow: 0 16px 32px rgba(0,0,0,0.30);
-} 
+}
+
+.videos-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+}
 
 .youtube-icon {
-  width: 45px;
-  height: 45px;
+  width: 35px;
+  height: 35px;
   cursor: pointer;
-  padding-bottom: 10px;
 }
 
 .artist-navigation {
@@ -154,7 +169,6 @@ nav {
   height: 50px;
   border-radius: 100%;
   border: none;
-  cursor: pointer;
   box-shadow: 0 8px 24px rgba(0,0,0,0.50); 
 }
 
@@ -205,9 +219,21 @@ nav {
 }
 
 .album-container {
-  width: 95%;
+  padding: 10px;
+  text-align: start;
+}
+
+.album-container ul {
+  padding: 10px 5px;
+  margin: 0;
+}
+
+.album-container li {
+  list-style: none;
   display: flex;
   flex-direction: column;
+  align-items: start;
+  padding-bottom: 10px;
 }
 
 .album-cover {
@@ -466,6 +492,34 @@ textarea {
   display: none;
 }
 
+.merch-container,
+.event {
+  margin: 0;
+  padding: 10px;
+}
+
+.event h4,
+.event p {
+  text-align: start;
+}
+
+.merch-list li {
+  list-style: none;
+  padding: 10px 0;
+  gap: 5px;
+}
+
+.merch-image {
+  width: 100%;
+  min-width: 300px;
+}
+
+.event-poster {
+  width: 100%;
+  min-width: 300px;
+  border-radius: 5px;
+}
+
 @media (min-width: 600px) {
   .mobilebanner {
     display: none !important;
@@ -511,5 +565,52 @@ textarea {
   }
   .navbar {
     min-height: 50px;
+  }
+
+  .videos-container {
+    margin: 0;
+    padding: 10px;
+    min-height: fit-content;
+  }
+
+  .iframe-container {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+
+  .albums-maincontainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .albums {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .album-container {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .album-cover {
+    width: 100%;
+    max-width: 350px;
+    min-width: 300px;
+    height: auto;
+    margin-right: 20px;
+  }
+
+  .merch-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .merch-image {
+    max-width: 500px;
   }
 }

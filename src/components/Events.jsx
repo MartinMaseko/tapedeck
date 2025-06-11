@@ -21,16 +21,18 @@ function Events({ username }) {
   return (
     <div className="events-container">
       <h1>Events</h1>
-      <ul>
+      <div className="event">
         {events.map((event, idx) => (
-          <li key={idx}>
-            <b>{event.title}</b><br />
-            {event.poster && <img src={event.poster} alt={event.title} className="event-poster" />}<br />
-            {event.details}<br />
-            <a href={event.buyLinks} target="_blank" rel="noopener noreferrer">{event.buyLinks}</a>
-          </li>
+          <div className="event-box" key={idx}>
+            {event.poster && <img src={event.poster} alt={event.title} className="event-poster" />}
+            <div className="event-detials">
+              <h4>{event.title}</h4>
+              <p>{event.details}</p>
+              <a href={event.buyLinks} target="_blank" rel="noopener noreferrer">{event.buyLinks}</a>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
