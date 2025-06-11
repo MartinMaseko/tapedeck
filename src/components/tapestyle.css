@@ -20,10 +20,12 @@ nav {
   justify-content: center;
   align-items: center;
 }
+
 .navlogo {
   width: 100px;
   height: auto;
 }
+
 .videos-container,
 .albums-maincontainer,
 .events-container,
@@ -33,7 +35,6 @@ nav {
   flex-direction: column;
   min-height: 100vh;
 } 
-
 
 .profile-modal {
   position: fixed;
@@ -45,6 +46,7 @@ nav {
   border-radius: 10px;
   z-index: 1000;
 }
+
 .profile-modal-content {
   background: #FEFEFE;
   padding: 2rem;
@@ -52,6 +54,7 @@ nav {
   min-width: 200px;
   position: relative;
 }
+
 .close-btn {
   position: absolute;
   top: 8px; right: 12px;
@@ -60,6 +63,7 @@ nav {
   font-size: 1.5rem;
   cursor: pointer;
 }
+
 .profile-preview {
   width: 80px;
   height: 80px;
@@ -67,6 +71,7 @@ nav {
   border-radius: 50%;
   margin: 10px 0;
 }
+
 .navbar-username {
   margin-left: 16px;
   font-weight: bold;
