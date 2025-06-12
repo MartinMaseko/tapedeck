@@ -45,7 +45,7 @@ function Videos({ username }) {
           alt="YouTube Icon"
           onClick={() => window.open(channel, "_blank")}
         />
-        <h3>Music Videos</h3>
+        <h3> Music Videos</h3>
       </div>
       <div className="iframe-container">
         {links.map((link, idx) => {

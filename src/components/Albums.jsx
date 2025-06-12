@@ -1,12 +1,11 @@
 import "./tapestyle.css";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 
-function Albums({ username }) {
+function Albums({ username, onSongSelect }) {
   const [albums, setAlbums] = useState([]);
-  const [currentSong, setCurrentSong] = useState(null);
-  const audioRef = useRef(null);
+  const [currentSongUrl, setCurrentSongUrl] = useState(null);
 
   useEffect(() => {
     async function fetchAlbums() {
@@ -20,15 +19,7 @@ function Albums({ username }) {
     fetchAlbums();
   }, [username]);
 
-  // Play the song when currentSong changes
-  useEffect(() => {
-    if (audioRef.current && currentSong) {
-      audioRef.current.load();
-      audioRef.current.play();
-    }
-  }, [currentSong]);
-
-  return ( 
+  return (
     <div className="albums-maincontainer">
       <h3>Albums</h3>
       <div className="albums">
@@ -40,26 +31,24 @@ function Albums({ username }) {
                 {(album.songs || []).map((song, sidx) => (
                   <li
                     key={sidx}
-                    style={{ cursor: "pointer", color: currentSong === song.url ? "#006400" : undefined }}
-                    onClick={() => setCurrentSong(song.url)}
+                    style={{ cursor: "pointer", color: currentSongUrl === song.url ? "#006400" : undefined }}
+                    onClick={() => {
+                      setCurrentSongUrl(song.url);
+                      onSongSelect({
+                        title: `Track ${song.track}: ${song.name}`,
+                        url: song.url,
+                        cover: album.cover
+                      });
+                    }}
                   >
-                    {song.track}: {song.name}
+                    {song.name}
                   </li>
-                ))} 
+                ))}
               </ul>
             </div>
           </div>
         ))}
       </div>
-      <audio
-          ref={audioRef}
-          controls
-          controlsList="nodownload noplaybackrate"
-          src={currentSong || ""}
-          style={{ width: "100%"}}
-          >
-          Your browser does not support the audio element.
-        </audio>
     </div>
   );
 }

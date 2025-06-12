@@ -2,9 +2,11 @@ import { useRef, useState } from "react";
 import UserProfile from "./UserProfile";
 import Videos from "./Videos";
 import Albums from "./Albums";
+import AudioFooter from "./AudioFooter.jsx";
 
 function ArtistPage({ username }) {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [nowPlaying, setNowPlaying] = useState({ title: "", url: "" });
 
   const videosRef = useRef(null);
   const albumsRef = useRef(null);
@@ -18,7 +20,7 @@ function ArtistPage({ username }) {
   };
 
   return (
-    <div className="main-container">
+    <div className="main-container" style={{ position: "relative" }}>
       <UserProfile
         username={username}
         onMenuClick={() => setShowDropdown((v) => !v)}
@@ -26,7 +28,10 @@ function ArtistPage({ username }) {
         onSectionClick={goToSection}
       />
       <div ref={videosRef}><Videos username={username} /></div>
-      <div ref={albumsRef}><Albums username={username} /></div>
+      <div ref={albumsRef}>
+        <Albums username={username} onSongSelect={setNowPlaying} />
+      </div>
+      <AudioFooter nowPlaying={nowPlaying} />
     </div>
   );
 }

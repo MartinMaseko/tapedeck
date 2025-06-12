@@ -34,6 +34,10 @@ nav {
   min-height: 100vh;
 } 
 
+.albums-maincontainer {
+  margin-bottom: 150px
+}
+
 .profile-modal {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -237,6 +241,10 @@ nav {
   flex-direction: column;
   align-items: start;
   padding-bottom: 10px;
+}
+
+.album-section li:hover {
+  color: #197319;
 }
 
 .album-cover {
@@ -491,6 +499,32 @@ textarea {
   display: none;
 }
 
+.sticky-audio-player {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  background: #fff;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+  padding: 0 0 8px 0;
+}
+.now-playing-cover {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.now-playing-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #006400;
+  margin: 15px;
+  font-size: 12px;
+  gap: 12px;
+}
 
 @media (min-width: 600px) {
   .mobilebanner {
@@ -556,6 +590,7 @@ textarea {
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-bottom: 75px;
   }
 
   .albums {
@@ -575,6 +610,17 @@ textarea {
     min-width: 300px;
     height: auto;
     margin-right: 20px;
+  }
+
+  .now-playing-cover {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  .now-playing-title {
+    font-size: 16px;
   }
 
 }
