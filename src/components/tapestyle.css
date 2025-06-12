@@ -34,9 +34,6 @@ nav {
   min-height: 100vh;
 } 
 
-.albums-maincontainer {
-  margin-bottom: 200px
-}
 
 .profile-modal {
   position: fixed;
@@ -228,6 +225,10 @@ nav {
 .album-container {
   padding: 10px;
   text-align: start;
+}
+
+.albums {
+  margin-bottom: 200px;
 }
 
 .album-container ul {
