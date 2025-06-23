@@ -34,10 +34,8 @@ function Dashboard() {
 
   const toggleSection = (userId, section) => {
     setOpenSections(prev => ({
-      ...prev,
       [userId]: {
-        ...prev[userId],
-        [section]: !prev[userId]?.[section]
+        [section]: prev[userId]?.[section] ? false : true
       }
     }));
   };
@@ -52,7 +50,7 @@ function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      <div className="dashNav">
+      <nav className="dashNav">
         <img src={Logo} alt="Logo" className="Dashlogo" />
         <img
           width="30"
@@ -61,7 +59,7 @@ function Dashboard() {
           src="https://img.icons8.com/material-two-tone/30/006400/squared-menu.png"
           alt="squared-menu"
         />
-      </div>
+      </nav>
       <h2>Admin Dashboard</h2>
       {users.length === 0 && <p>No user uploads found.</p>}
       <div className="dashboard-users">
@@ -69,24 +67,36 @@ function Dashboard() {
           <div key={user.id} className="user-section">
             {/* Button Row */}
             <div className="dropdown-btn-row">
-              <h3>User: {user.username}</h3>
-              <button className="dropdown-btn" onClick={() => toggleSection(user.id, "youtubeLinks")}>
+              <h4>User: {user.username}</h4>
+              <button 
+              className={`dropdown-btn${openSections[user.id]?.youtubeLinks ? " open" : ""}`} 
+              onClick={() => toggleSection(user.id, "youtubeLinks")}>
                 YouTube Links
               </button>
-              <button className="dropdown-btn" onClick={() => toggleSection(user.id, "youtubeChannel")}>
+              <button 
+              className={`dropdown-btn${openSections[user.id]?.youtubeChannel ? " open" : ""}`} 
+              onClick={() => toggleSection(user.id, "youtubeChannel")}>
                 YouTube Channel
               </button>
-              <button className="dropdown-btn" onClick={() => toggleSection(user.id, "streamingLinks")}>
+              <button 
+              className={`dropdown-btn${openSections[user.id]?.streamingLinks ? " open" : ""}`} 
+              onClick={() => toggleSection(user.id, "streamingLinks")}>
                 Streaming Links
               </button>
-              <button className="dropdown-btn" onClick={() => toggleSection(user.id, "album")}>
-                Album
+              <button 
+              className={`dropdown-btn${openSections[user.id]?.albums ? " open" : ""}`} 
+              onClick={() => toggleSection(user.id, "albums")}>
+                Albums
               </button>
-              <button className="dropdown-btn" onClick={() => toggleSection(user.id, "merch")}>
-                Merchandise
+              <button 
+              className={`dropdown-btn${openSections[user.id]?.presskit ? " open" : ""}`} 
+              onClick={() => toggleSection(user.id, "presskit")}>
+                Presskit
               </button>
-              <button className="dropdown-btn" onClick={() => toggleSection(user.id, "events")}>
-                Events
+              <button 
+              className={`dropdown-btn${openSections[user.id]?.paypalMe ? " open" : ""}`} 
+              onClick={() => toggleSection(user.id, "paypalMe")}>
+                PayPalMe
               </button>
             </div>
             {/* Dropdown Content Grouped Below Buttons */}
@@ -114,57 +124,56 @@ function Dashboard() {
                   <h4>Streaming Links</h4>
                   <ul>
                     {user.streamingLinks && Object.entries(user.streamingLinks).map(([service, link]) => (
-                      <li key={service}><b>{service}:</b> <a href={link} target="_blank" rel="noopener noreferrer">{link  || "None"}</a></li>
+                      <li key={service}><b>{service}:</b> <a href={link} target="_blank" rel="noopener noreferrer">{link || "None"}</a></li>
                     ))}
                   </ul>
                 </div>
               )}
-              {openSections[user.id]?.album && user.album && (
+              {openSections[user.id]?.albums && (
                 <div className="dropdown-content">
-                  <h4>Album</h4>
-                  {user.album.cover && <img src={user.album.cover} alt="Album Cover" className="album-cover-dash" />}
-                  <ul>
-                    {(user.album.songs || []).map((song, idx) => (
-                      <li key={idx}>
-                        Track {song.track}: {song.name} - <a href={song.url} target="_blank" rel="noopener noreferrer">Listen</a>
-                      </li>
-                    ))}
-                  </ul>
+                  <h4>Albums</h4>
+                  {(user.albums || []).length === 0 && <p>No albums uploaded.</p>}
+                  {(user.albums || []).map((album, aIdx) => (
+                    <div key={aIdx} style={{ marginBottom: "20px" }}>
+                      {album.cover && <img src={album.cover} alt="Album Cover" className="album-cover-dash" />}
+                      <ul>
+                        {(album.songs || []).map((song, idx) => (
+                          <li key={idx}>
+                            Track {song.track}: {song.name} - <a href={song.url} target="_blank" rel="noopener noreferrer">Listen</a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
               )}
-              {openSections[user.id]?.merch && (
+              {openSections[user.id]?.presskit && user.presskit && (
                 <div className="dropdown-content">
-                  <h4>Merchandise</h4>
-                  <ul>
-                    {(user.merch || []).map((product, idx) => (
-                      <li key={idx}>
-                        <b>{product.label}</b><br />
-                        {product.image && <img src={product.image} alt={product.label} className="merch-image" />}<br />
-                        {product.description}<br />
-                        {product.merchPaypalButton && (
-                          <details>
-                            <summary>PayPal Button Script</summary>
-                            <pre style={{whiteSpace: "pre-wrap"}}>{product.merchPaypalButton}</pre>
-                          </details>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
+                  <h4>Presskit</h4>
+                  <p><b>Name:</b> {user.presskit.name}</p>
+                  <p><b>Bio:</b> {user.presskit.bio}</p>
+                  <p><b>Email:</b> {user.presskit.email}</p>
+                  <p><b>Contact:</b> {user.presskit.contact}</p>
+                  <div>
+                    <b>Gallery:</b>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+                      {(user.presskit.gallery || []).map((img, idx) => (
+                        <img key={idx} src={img} alt={`Gallery ${idx + 1}`} style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 6 }} />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )}
-              {openSections[user.id]?.events && (
+              {openSections[user.id]?.paypalMe && (user.PaypalMe || user.paypalMe) && (
                 <div className="dropdown-content">
-                  <h4>Events</h4>
-                  <ul>
-                    {(user.events || []).map((event, idx) => (
-                      <li key={idx}>
-                        <b>{event.title}</b><br />
-                        {event.poster && <img src={event.poster} alt={event.title} className="event-poster" />}<br />
-                        {event.details}<br />
-                        <a href={event.buyLinks} target="_blank" rel="noopener noreferrer">{event.buyLinks}</a>
-                      </li>
-                    ))}
-                  </ul>
+                  <h4>PayPalMe</h4>
+                  <a
+                    href={`https://paypal.me/${user.PaypalMe || user.paypalMe}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {user.PaypalMe || user.paypalMe}
+                  </a>
                 </div>
               )}
             </div>

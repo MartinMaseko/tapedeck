@@ -67,6 +67,7 @@ function UserProfile({ username, onMenuClick, showDropdown, onSectionClick }) {
           <ul className="artist-modal-list" style={{ margin: 0 }}>
             <li className="artist-modal-item" onClick={() => onSectionClick("videos")}>Videos</li>
             <li className="artist-modal-item" onClick={() => onSectionClick("albums")}>Albums</li>
+            <li className="artist-modal-item" onClick={() => onSectionClick("presskit")}>Press Kit</li>
           </ul>
           <div className="artist-dropdown-footer">
             <a href={streamingLinks.spotify} target="_blank" rel="noopener noreferrer">
