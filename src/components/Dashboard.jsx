@@ -67,9 +67,9 @@ function Dashboard() {
       <div className="dashboard-users">
         {users.map(user => (
           <div key={user.id} className="user-section">
-            <h3>User: {user.username}</h3>
             {/* Button Row */}
             <div className="dropdown-btn-row">
+              <h3>User: {user.username}</h3>
               <button className="dropdown-btn" onClick={() => toggleSection(user.id, "youtubeLinks")}>
                 YouTube Links
               </button>
