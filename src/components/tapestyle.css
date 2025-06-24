@@ -26,8 +26,7 @@ nav {
   height: auto;
 }
 
-.videos-container,
-.albums-maincontainer {
+.main-container {
   background-color: #F0F0F0;
   display: flex;
   flex-direction: column;
@@ -227,10 +226,6 @@ nav {
   text-align: start;
 }
 
-.albums {
-  margin-bottom: 200px;
-}
-
 .album-container ul {
   padding: 10px 5px;
   margin: 0;
@@ -254,6 +249,36 @@ nav {
   border-radius: 5px;
   box-shadow: 0 0 16px rgba(0,0,0,0.20); 
   display: block;
+}
+
+.presskit-container {
+  padding: 0px 20px;
+  text-align: start;
+  margin-bottom: 200px;
+}
+
+.presskit-container h2 {
+  text-align: center;
+}
+
+.presskit-container b {
+  color: #197319;
+}
+
+.presskit-gallery {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.presskit-image {
+  width: 100%;
+  max-width: 350px;
+  height: auto;
+  border-radius: 5px;
+  box-shadow: 0 0 16px rgba(0,0,0,0.20); 
 }
 
 .form-container {
@@ -367,6 +392,32 @@ textarea {
   width: 100px;
 }
 
+
+.cassette-image {
+  width: 150px;
+  height: auto;
+  display: flex;
+  justify-content: center;
+}
+
+
+.donate-btn-container {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  font-size: 10px;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  color:#333;
+  gap: 10px;
+}
+
+
+.donate-icon:hover {
+  transform: scale(1.1);
+}
+
 .google-sign {
   width: 300px;
   height: 50px;
@@ -405,6 +456,7 @@ textarea {
 .dashboard-container {
   min-height: 100vh;
   background-color: #F0F0F0;
+  color: #333;
 }
 
 .icons-btns {
@@ -444,7 +496,7 @@ textarea {
 .user-section {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   margin-top: 10px;
   border-bottom: 1px solid #ccc;
   gap: 10px;
@@ -459,9 +511,8 @@ textarea {
 }
 
 .dropdown-btn {
-  background: #197319;
-  color: #F0F0F0;
-  font-weight: bold;
+  background: #F0F0F0;
+  color: #197319;
   border: none;
   padding: 10px 16px;
   margin: 8px 0;
@@ -470,9 +521,11 @@ textarea {
   border-radius: 4px;
   transition: background 0.2s;
 }
+
 .dropdown-btn:hover {
-  background: #006400;
+  color: #006400;
 }
+
 .dropdown-content ul {
   list-style: none;
   padding-left: 0;
@@ -487,9 +540,28 @@ textarea {
 
 .dropdown-content a {
   text-decoration: none;
-  color: #333;
+  color: #197319;
   padding: 8px 16px;
   display: block;
+}
+
+.dropdown-btn.open {
+  background: #197319;
+  color: #fff;
+  border: 1px solid #197319;
+  box-shadow: 0 2px 8px rgba(0,100,0,0.08);
+}
+.dropdown-btn.open:hover {
+  color: #fff;
+}
+
+/* Animate dropdown content */
+.dropdown-content {
+  animation: dropdownFade 0.2s;
+}
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translateY(-8px);}
+  to { opacity: 1; transform: translateY(0);}
 }
 
 .album-cover-dash {
@@ -498,6 +570,42 @@ textarea {
 
 .updates-bg {
   display: none;
+}
+
+.update-message {
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  position: relative;
+  z-index: 10;
+  border: 1px solid;
+  font-weight: bold;
+  text-align: center;
+  transition: opacity 0.3s;
+}
+
+.update-message.success {
+  background: #ddffdd;
+  color: #060;
+  border-color: #060;
+}
+
+.update-message.error {
+  background: #ffdddd;
+  color: #a00;
+  border-color: #a00;
+}
+
+.update-message .close-btn {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  background: transparent;
+  border: none;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  color: inherit;
 }
 
 .sticky-audio-player {
@@ -591,7 +699,6 @@ textarea {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 75px;
   }
 
   .albums {

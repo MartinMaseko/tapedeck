@@ -18,6 +18,7 @@ function Updates() {
   const [usernameCreated, setUsernameCreated] = useState(false);
   const [updateMsg, setUpdateMsg] = useState("");
   const [updating, setUpdating] = useState(false);
+  const [updateMsgType, setUpdateMsgType] = useState(""); 
   const [ArtistName, setArtistName] = useState("");
   const [presskitBio, setPresskitBio] = useState("");
   const [presskitEmail, setPresskitEmail] = useState("");
@@ -110,15 +111,20 @@ function Updates() {
     }));
   };
 
+  // Helper to show notification
+  const showNotification = (msg, type = "success") => {
+    setUpdateMsg(msg);
+    setUpdateMsgType(type);
+    setTimeout(() => setUpdateMsg(""), 4000);
+  };
+
   const handleUpdateStreaming = async (e) => {
     e.preventDefault();
-    setUpdateMsg("Just a sec...");
     setUpdating(true);
     const user = auth.currentUser;
     if (!user) {
-      setUpdateMsg("");
+      showNotification("You must be logged in.", "error");
       setUpdating(false);
-      alert("You must be logged in.");
       return;
     }
     try {
@@ -126,24 +132,20 @@ function Updates() {
         username,
         streamingLinks
       }, { merge: true });
-      setUpdateMsg("All done!");
-      alert("Streaming links updated!");
+      showNotification("Streaming links updated!", "success");
     } catch (err) {
-      alert("Error saving streaming links: " + err.message);
+      showNotification("Error saving streaming links: " + err.message, "error");
     }
     setUpdating(false);
-    setTimeout(() => setUpdateMsg(""), 2000);
   };
 
   const handleUpdateVideos = async (e) => {
     e.preventDefault();
-    setUpdateMsg("Updating videos...");
     setUpdating(true);
     const user = auth.currentUser;
     if (!user) {
-      setUpdateMsg("");
+      showNotification("You must be logged in.", "error");
       setUpdating(false);
-      alert("You must be logged in.");
       return;
     }
     const safeLinks = youtubelinks.map(link => link || "");
@@ -152,25 +154,22 @@ function Updates() {
         username,
         youtubelinks: safeLinks,
         youtubeChannelLink: youtubeChannelLink || ""
-      }, { merge: true }); // merge: true keeps other fields
-      setUpdateMsg("All done!");
-      alert("YouTube links updated!");
+      }, { merge: true });
+      showNotification("YouTube links updated!", "success");
     } catch (err) {
-      alert("Error saving links: " + err.message);
+      showNotification("Error saving links: " + err.message, "error");
     }
-    setUpdateMsg("Videos updated!");
     setUpdating(false);
   };
 
   const handleUploadRelease = async (e) => {
     e.preventDefault();
-    setUpdateMsg("Uploading release...");
     setUpdating(true);
     const user = auth.currentUser;
     if (!user) {
-      setUpdateMsg("");
+      showNotification("You must be logged in.", "error");
       setUpdating(false);
-      alert("You must be logged in.");
+      console.error("Upload failed: user not logged in");
       return;
     }
 
@@ -178,12 +177,14 @@ function Updates() {
     let albumCoverUrl = "";
     if (albumCover) {
       albumCoverUrl = await uploadToRailway(albumCover, "cover", "images");
+      console.log("Album cover uploaded:", albumCoverUrl);
     }
 
     // 2. Upload each song to Railway and get URLs
     const uploadedSongs = await Promise.all(songFiles.map(async (file, idx) => {
       if (!file) return null;
       const url = await uploadToRailway(file, `track${idx + 1}`, "songs");
+      console.log(`Track ${idx + 1} uploaded:`, url);
       return {
         track: idx + 1,
         name: file.name,
@@ -204,24 +205,23 @@ function Updates() {
         username,
         albums: arrayUnion(albumObj)
       });
-      setUpdateMsg("Release uploaded successfully!");
+      showNotification("Release uploaded successfully!", "success");
+      console.log("Release uploaded successfully!");
       // Optionally reset form fields here
     } catch (err) {
-      setUpdateMsg("Error saving release: " + err.message);
+      showNotification("Error saving release: " + err.message, "error");
+      console.error("Error saving release:", err);
     }
     setUpdating(false);
-    setTimeout(() => setUpdateMsg(""), 3000); // Clear message after 3s
   };
   
   const handleUploadPresskit = async (e) => {
     e.preventDefault();
-    setUpdateMsg("Uploading presskit...");
     setUpdating(true);
     const user = auth.currentUser;
     if (!user) {
-      setUpdateMsg("");
+      showNotification("You must be logged in.", "error");
       setUpdating(false);
-      alert("You must be logged in.");
       return;
     }
 
@@ -253,17 +253,16 @@ function Updates() {
           gallery: galleryUrls.filter(Boolean),
         }
       }, { merge: true }); // Use merge to avoid overwriting other fields
-      setUpdateMsg("Presskit uploaded successfully!");
+      showNotification("Presskit uploaded successfully!", "success");
       setArtistName("");
       setPresskitBio("");
       setPresskitEmail("");
       setPresskitContact("");
       setPresskitGallery([]);
     } catch (err) {
-      setUpdateMsg("Error saving presskit: " + err.message);
+      showNotification("Error saving presskit: " + err.message, "error");
     }
     setUpdating(false);
-    setTimeout(() => setUpdateMsg(""), 3000);
   };
 
   async function uploadToRailway(file, label, fieldName = "images") {
@@ -292,7 +291,6 @@ function Updates() {
       return null;
     } catch (error) {
       console.error('Error uploading file:', error);
-      alert(`Failed to upload ${label}: ${error.message}`);
       return null;
     }
   }
@@ -309,7 +307,16 @@ function Updates() {
         >
         </div>
       {updateMsg && (
-        <div className="update-message">{updateMsg}</div>
+        <div className={`update-message ${updateMsgType}`}>
+          {updateMsg}
+          <button
+            className="close-btn"
+            onClick={() => setUpdateMsg("")}
+            aria-label="Close notification"
+          >
+            ×
+          </button>
+        </div>
       )}
       <input
           className="form-inputs"

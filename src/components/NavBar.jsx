@@ -10,8 +10,7 @@ function NavBar() {
   const [cell, setCell] = useState("");
   const [username, setUsername] = useState("");
   const [namesurname, setNamesurname] = useState("");
-  const [bankacc, setBankacc] = useState("");
-  const [bank, setBank] = useState("");
+  const [PaypalMe, setPaypalMe] = useState("");
   const [profileImage, setProfileImage] = useState(null);
   const [profileImageUrl, setProfileImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -26,8 +25,7 @@ function NavBar() {
           setUsername(data.username || "");
           setNamesurname(data.namesurname || "");
           setCell(data.cell || "");
-          setBankacc(data.bankacc || "");
-          setBank(data.bank || "");
+          setPaypalMe(data.PaypalMe || "");
           setProfileImageUrl(data.profileImageUrl || "");
         }
       }
@@ -81,8 +79,7 @@ function NavBar() {
     await setDoc(doc(db, "Artists", user.uid), {
       namesurname,
       cell,
-      bankacc,
-      bank,
+      PaypalMe,
       profileImageUrl: imageUrl,
     }, { merge: true });
 
@@ -143,17 +140,9 @@ function NavBar() {
               <input
                 className="form-inputs"
                 type="text"
-                placeholder="Bank Account"
-                value={bankacc || ""}
-                onChange={e => setBankacc(e.target.value)}
-                required
-              />
-              <input
-                className="form-inputs"
-                type="text"
-                placeholder="Bank"
-                value={bank || ""}
-                onChange={e => setBank(e.target.value)}
+                placeholder="Paypal.me Link"
+                value={PaypalMe || ""}
+                onChange={e => setPaypalMe(e.target.value)}
                 required
               />
               <div className="profile-btns">
