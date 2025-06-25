@@ -10,6 +10,46 @@ nav {
   align-items: center;
 }
 
+.navbar {
+    background: rgba(255,255,255,0.3);
+    position: absolute;
+    width: 100%;
+    left: 0;      
+    top: 0;
+    z-index: 10;
+    box-sizing: border-box; 
+    overflow-x: hidden;
+}
+
+.homelogo {
+  width: 100px;
+  height: auto;
+}
+
+.homebanner {
+  width: 100vw;
+  height: auto;
+}
+
+.home-content {
+  padding: 20px;
+  gap: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.home-content h1,
+.home-content h2 {
+  color: #197319;
+}
+
+.feature-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 20px;
+}
 
 .updates-bg {
   min-height: 100vh;
@@ -26,6 +66,7 @@ nav {
   height: auto;
 }
 
+
 .main-container {
   background-color: #F0F0F0;
   display: flex;
@@ -33,6 +74,13 @@ nav {
   min-height: 100vh;
 } 
 
+
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #1b1b1b;
+}
 
 .profile-modal {
   position: fixed;
@@ -331,7 +379,8 @@ nav {
 }
 
 .login-container button,
-.update-btns {
+.update-btns,
+.get-started-button {
   background-color: #197319;
   color: #FEFEFE;
   border: 1px solid #ccc;
@@ -348,7 +397,9 @@ nav {
   width: 150px;
 }
 
-.update-btns:hover {
+.update-btns:hover,
+.get-started-button:hover,
+.login-container button:hover {
   background-color: #006400;
   transition: background-color 0.3s;
 }
@@ -729,6 +780,11 @@ textarea {
 
   .now-playing-title {
     font-size: 16px;
+  }
+
+  .homelogo {
+    width: 150px;
+    height: auto;
   }
 
 }
