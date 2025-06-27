@@ -89,7 +89,7 @@ function NavBar() {
 
   return (
     <>
-      <nav className="navbar">
+      <nav >
         <img className="navlogo" src={logo} alt="Logo" />
         <img
           width="25"
