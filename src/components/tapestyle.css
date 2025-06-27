@@ -11,7 +11,7 @@ nav {
 }
 
 .navbar {
-    background: rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1);
     position: absolute;
     width: 100%;
     left: 0;      
@@ -22,25 +22,48 @@ nav {
 }
 
 .homelogo {
-  width: 100px;
+  width: 75px;
   height: auto;
+  cursor: pointer;
+}
+
+.responsiveimg,
+.templateimg {
+  margin-top: 20px;
+  width: 100%;
+  height: auto;
+  max-width: 500px;
+  border-radius: 12px;
+}
+
+.footerbanner {
+  margin-top: 20px;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6);
 }
 
 .homebanner {
   width: 100vw;
   height: auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6);
 }
 
 .home-content {
   padding: 20px;
-  gap: 20px;
   display: flex;
   flex-direction: column;
 }
 
 .home-content h1,
-.home-content h2 {
+.home-content h2,
+.home-content h3 {
   color: #197319;
+}
+
+.content-text p {
+  text-align: center;
 }
 
 .feature-icons {
@@ -80,6 +103,7 @@ nav {
   flex-direction: column;
   align-items: center;
   color: #1b1b1b;
+  background-color: #F0F0F0;
 }
 
 .profile-modal {
@@ -521,6 +545,9 @@ textarea {
   height: auto;
 }
 
+Button {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
 .dashNav {
   display: flex;
   justify-content: space-between;
@@ -686,6 +713,35 @@ textarea {
   gap: 12px;
 }
 
+.menu-dropdown {
+    position: fixed;         
+    top: 50px;             
+    right: 0px;            
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    z-index: 9999;        
+    display: flex;
+    flex-direction: column;
+    min-width: 140px;
+}
+.menu-dropdown button {
+    background: none;
+    border: none;
+    padding: 12px 20px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #197319;
+    transition: background 0.2s;
+    border-radius: 8px;
+}
+.menu-dropdown button:hover {
+    background: #197319;
+    color: whitesmoke;
+    font-weight: bold;
+}
+
 @media (min-width: 600px) {
   .mobilebanner {
     display: none !important;
@@ -785,6 +841,14 @@ textarea {
   .homelogo {
     width: 150px;
     height: auto;
+  }
+
+  .content-sectionone,
+  .content-sectiontwo {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    gap: 20px;
   }
 
 }

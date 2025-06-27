@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
 import { auth } from "../firebase";
 import "./tapestyle.css"; 
 import cassette from "./assets/cassette.webp";
 import tapedeckLogo from "./assets/Logo.png";
+import logo from "./assets/Logo.png"; 
 
 import {
   signInWithEmailAndPassword,
@@ -16,6 +17,13 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate(); 
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+  const handleMenuClick = () => setMenuOpen((open) => !open);
+  const handleNavigate = (path) => {
+        setMenuOpen(false);
+        navigate(path);
+  };
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
@@ -36,9 +44,45 @@ export default function Login() {
       setError(err.message);
     }
   };
+  
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+          setMenuOpen(false);
+          }
+        }
+      if (menuOpen) {
+          document.addEventListener("mousedown", handleClickOutside);
+      } else {
+          document.removeEventListener("mousedown", handleClickOutside);
+      }
+      return () => {
+          document.removeEventListener("mousedown", handleClickOutside);
+          };
+    }, [menuOpen]);
 
   return (
     <div className="login-container">
+      <nav className="navbar">
+                      <img src={logo} alt="TapeDeck Logo" className="homelogo"  onClick={() => navigate("/")}/>
+                      <div style={{ position: "relative" }}>
+                          <img
+                              width="25"
+                              height="25"
+                              className="menu-icon"
+                              src="https://img.icons8.com/material-two-tone/25/006400/squared-menu.png"
+                              alt="squared-menu"
+                              onClick={handleMenuClick}
+                              style={{ cursor: "pointer" }}
+                          />
+                          {menuOpen && (
+                              <div className="menu-dropdown">
+                                  <button onClick={() => handleNavigate("/login")}>Login</button>
+                                  <button onClick={() => handleNavigate("/login")}>Get Started</button>
+                              </div>
+                          )}
+                      </div>
+                  </nav>
     <img src={cassette} alt="Cassette" className="cassette" />
     <img src={tapedeckLogo} alt="Tape Deck Logo" className="logo" />
       <form onSubmit={handleEmailLogin}>
